@@ -45,8 +45,8 @@ func Load(path string) (*Env, error) {
 	if err != nil {
 		return nil, err
 	}
-	dir := filepath.Dir(path) + "/"
-	env.MapData, err = loadMapData(dir + env.MapDataPath)
+	dir := filepath.Dir(path)
+	env.MapData, err = loadMapData(filepath.Join(dir, env.MapDataPath))
 	if err != nil {
 		return nil, err
 	}
