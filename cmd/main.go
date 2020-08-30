@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 	"sync"
+	"time"
 
 	"github.com/Div9851/warehouse-sim/env"
 	"github.com/Div9851/warehouse-sim/sim"
@@ -23,7 +24,9 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+	var totalProcessTime float64
 	for i := 0; i < *total; i += *concurrent {
+		startTime := time.Now()
 		k := *concurrent
 		if (*total - i) < k {
 			k = *total - i
@@ -45,5 +48,10 @@ func main() {
 			}()
 		}
 		wg.Wait()
+		endTime := time.Now()
+		processTime := endTime.Sub(startTime).Seconds()
+		fmt.Printf("%v: process time %v sec\n", i, processTime)
+		totalProcessTime += processTime
 	}
+	fmt.Printf("total process time %v sec\n", totalProcessTime)
 }
