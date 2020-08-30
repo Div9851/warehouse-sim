@@ -2,7 +2,7 @@
   "name": "mcts_all_stay",
   "num_agents": 3,
   "max_items": 1,
-  "last_turn": 20,
+  "last_turn": 100,
   "time_limit": 10,
   "clear_reward": 100,
   "pickup_reward": 100,
