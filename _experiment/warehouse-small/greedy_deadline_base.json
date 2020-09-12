@@ -1,5 +1,5 @@
 {
-  "name": "greedy_all_stay",
+  "name": "greedy_deadline_base",
   "num_agents": 3,
   "max_items": 1,
   "last_turn": 100,
@@ -10,6 +10,6 @@
   "map_data_path": "map_data.txt",
   "appear_prob": 0.3,
   "depot_pos": { "x": 0, "y": 3 },
-  "resolve": "ALL STAY",
+  "resolve": "DEADLINE BASE",
   "algorithm": "GREEDY"
 }

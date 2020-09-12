@@ -1,5 +1,5 @@
 {
-  "name": "greedy_all_stay",
+  "name": "mcts_deadline_base",
   "num_agents": 3,
   "max_items": 1,
   "last_turn": 100,
@@ -10,6 +10,12 @@
   "map_data_path": "map_data.txt",
   "appear_prob": 0.3,
   "depot_pos": { "x": 0, "y": 3 },
-  "resolve": "ALL STAY",
-  "algorithm": "GREEDY"
+  "resolve": "DEADLINE BASE",
+  "algorithm": "MCTS",
+  "mcts_discount_factor": 0.9,
+  "mcts_expand_thresh": 1,
+  "mcts_max_childs": 5,
+  "mcts_max_depth": 20,
+  "mcts_num_of_iter": 20000,
+  "uct_param": 2
 }
