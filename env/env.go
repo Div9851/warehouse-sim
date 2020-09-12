@@ -13,19 +13,18 @@ import (
 
 //Env 環境設定
 type Env struct {
-	Name         string  `json:"name"`
-	NumAgents    int     `json:"num_agents"`
-	MaxItems     int     `json:"max_items"`
-	LastTurn     int     `json:"last_turn"`
-	TimeLimit    int     `json:"time_limit"`
-	ClearReward  float64 `json:"clear_reward"`
-	PickupReward float64 `json:"pickup_reward"`
-	DIYBonus     float64 `json:"DIY_bonus"` //自分でアイテムを運んだとき/回収したときに追加で得られるReward
-	MapDataPath  string  `json:"map_data_path"`
-	AppearProb   float64 `json:"appear_prob"`
-	DepotPos     pos.Pos `json:"depot_pos"`
-	Resolve      string  `json:"resolve"`   //ALL STAY, DEADLINE BASE
-	Algorithm    string  `json:"algorithm"` //GREEDY, MCTS
+	Name        string  `json:"name"`
+	NumAgents   int     `json:"num_agents"`
+	MaxItems    int     `json:"max_items"`
+	LastTurn    int     `json:"last_turn"`
+	TimeLimit   int     `json:"time_limit"`
+	Reward      float64 `json:"reward"`
+	DIYBonus    float64 `json:"DIY_bonus"` //自分でアイテムを運んだとき/回収したときに追加で得られるReward
+	MapDataPath string  `json:"map_data_path"`
+	AppearProb  float64 `json:"appear_prob"`
+	DepotPos    pos.Pos `json:"depot_pos"`
+	Resolve     string  `json:"resolve"`   //ALL STAY, DEADLINE BASE
+	Algorithm   string  `json:"algorithm"` //GREEDY, MCTS
 
 	DiscountFactor float64 `json:"mcts_discount_factor"`
 	ExpandTheresh  int     `json:"mcts_expand_thresh"` //ノードを展開する閾値

@@ -15,10 +15,10 @@ import (
 func eval(id int, pos pos.Pos, state *state.State, env *env.Env) float64 {
 	d := 1 + float64(env.MinDist[state.AgentPos[id]][pos])
 	if pos == env.DepotPos {
-		return float64(len(state.AgentItems[id])) * env.ClearReward / d
+		return float64(len(state.AgentItems[id])) * env.Reward / d
 	}
 	m := math.Min(float64(len(state.PosItems[pos])), float64(env.MaxItems-len(state.AgentItems[id])))
-	return m * env.PickupReward / d
+	return m * env.Reward / d
 }
 
 type tuple struct {

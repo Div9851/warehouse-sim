@@ -26,14 +26,11 @@ func TestLoadFromJSON(t *testing.T) {
 	if env.TimeLimit != 10 {
 		t.Fatalf("env.TimeLimit should be `10`, but `%v`", env.TimeLimit)
 	}
-	if env.ClearReward != 100 {
-		t.Fatalf("env.ClearReward should be `100`, but `%v`", env.ClearReward)
-	}
-	if env.PickupReward != 100 {
-		t.Fatalf("env.PickupReward should be `100`, but `%v`", env.PickupReward)
+	if env.Reward != 100 {
+		t.Fatalf("env.Reward should be `100`, but `%v`", env.Reward)
 	}
 	if env.DIYBonus != 70 {
-		t.Fatalf("env.DIYBonus should be `100`, but `%v`", env.DIYBonus)
+		t.Fatalf("env.DIYBonus should be `70`, but `%v`", env.DIYBonus)
 	}
 	if env.MapDataPath != "map_data.txt" {
 		t.Fatalf("env.MapDataPath should be `map_data.txt`, but `%v`", env.MapDataPath)
