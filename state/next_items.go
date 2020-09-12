@@ -9,8 +9,8 @@ import (
 )
 
 //nextItems 現在の状態, 各エージェントの行動, 環境設定, 乱数生成器を受け取り
-//次の状態のAgentItems, PosItems, RandomValues, アイテムが出現した場所, 各エージェントが得た報酬を返す
-func nextItems(state *State, actions []int, env *env.Env, rnd *rand.Rand) ([][]int, map[pos.Pos][]int, map[pos.Pos]float64, *pos.Pos, []float64) {
+//次の状態のAgentItems, PosItems, アイテムが出現した場所, 各エージェントが得た報酬を返す
+func nextItems(state *State, actions []int, env *env.Env, rnd *rand.Rand) ([][]int, map[pos.Pos][]int, *pos.Pos, []float64) {
 	agentItems := make([][]int, len(state.AgentItems))
 	for i, items := range state.AgentItems {
 		agentItems[i] = make([]int, len(items))
@@ -20,10 +20,6 @@ func nextItems(state *State, actions []int, env *env.Env, rnd *rand.Rand) ([][]i
 	for k, v := range state.PosItems {
 		posItems[k] = make([]int, len(v))
 		copy(posItems[k], v)
-	}
-	randomValues := make(map[pos.Pos]float64)
-	for k, v := range state.RandomValues {
-		randomValues[k] = v
 	}
 	agentPos := state.AgentPos //AgentPosは更新しないのでコピーしない
 	rewards := make([]float64, env.NumAgents)
@@ -68,8 +64,7 @@ func nextItems(state *State, actions []int, env *env.Env, rnd *rand.Rand) ([][]i
 	if rnd.Float64() < env.AppearProb {
 		pos := env.AllPos[rnd.Intn(len(env.AllPos))]
 		posItems[pos] = append(posItems[pos], state.Turn+env.TimeLimit)
-		randomValues[pos] = rnd.Float64()
 		lastAppear = &pos
 	}
-	return agentItems, posItems, randomValues, lastAppear, rewards
+	return agentItems, posItems, lastAppear, rewards
 }

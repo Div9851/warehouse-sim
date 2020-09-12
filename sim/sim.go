@@ -1,7 +1,6 @@
 package sim
 
 import (
-	"encoding/json"
 	"fmt"
 	"math/rand"
 	"strings"
@@ -48,16 +47,19 @@ func New(env *env.Env, seed int64) *Simulator {
 	}
 	randomValues := make(map[pos.Pos]float64)
 	randomValues[env.DepotPos] = simRand.Float64()
+	for _, pos := range env.AllPos {
+		randomValues[pos] = simRand.Float64()
+	}
 	state := state.New(1, agentItems, agentPos, posItems, randomValues)
 	return &Simulator{Env: env, State: state, TotalRewards: totalRewards, PickupCounts: pickupCounts, ClearCounts: clearCounts, SimRand: simRand, Rands: rands, Seed: seed}
 }
 
-//Do シミュレーションを実行し, 結果を返す
-func (sim *Simulator) Do(verbose bool) string {
+//Do シミュレーションを実行し, 実行時間を返す
+func (sim *Simulator) Do(verbose bool) float64 {
 	startTime := time.Now()
 	for {
 		if verbose {
-			fmt.Println(sim.DumpState())
+			fmt.Printf("%v\n\n", sim.DumpState())
 		}
 		if !sim.Next() {
 			break
@@ -65,7 +67,7 @@ func (sim *Simulator) Do(verbose bool) string {
 	}
 	endTime := time.Now()
 	processTime := endTime.Sub(startTime).Seconds()
-	return sim.DumpResult(processTime)
+	return processTime
 }
 
 //Next シミュレーションを1ステップ進める（すでに終了していればfalseを返す）
@@ -76,7 +78,7 @@ func (sim *Simulator) Next() bool {
 	var actions []int
 	switch sim.Env.Algorithm {
 	case "GREEDY":
-		actions = greedy.Greedy(sim.State, sim.Env, sim.SimRand)
+		actions = greedy.Greedy(sim.State, sim.Env, sim.Rands[0])
 	case "MCTS":
 		wg := &sync.WaitGroup{}
 		actions = make([]int, sim.Env.NumAgents)
@@ -178,12 +180,7 @@ func (sim *Simulator) DumpState() string {
 	return b.String()
 }
 
-//DumpResult シミュレーションにかかった時間を受け取り, シミュレーションの結果をJSONにエンコードして返す
-func (sim *Simulator) DumpResult(processTime float64) string {
-	result := Result{EnvName: sim.Env.Name, TotalItems: sim.TotalItems, PickupCounts: sim.PickupCounts, ClearCounts: sim.ClearCounts, Seed: sim.Seed, ProcessTime: processTime}
-	jsonData, err := json.Marshal(result)
-	if err != nil {
-		panic(err)
-	}
-	return string(jsonData)
+//GetResult シミュレーションの結果を返す
+func (sim *Simulator) GetResult() *Result {
+	return &Result{TotalItems: sim.TotalItems, PickupCounts: sim.PickupCounts, ClearCounts: sim.ClearCounts}
 }

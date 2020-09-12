@@ -78,8 +78,13 @@ func doDFS(state *State, env *env.Env, agentPos []pos.Pos, former map[pos.Pos]in
 				if len(state.AgentItems[candID]) > 0 {
 					candDeadline = state.AgentItems[candID][0]
 				}
+				//今いる場所にとどまるエージェントが最優先
 				if candID == formerID {
-					candDeadline = -1
+					candDeadline = -100
+				}
+				//現在デポにいるエージェントを優先
+				if state.AgentPos[candID] == env.DepotPos {
+					candDeadline = -99
 				}
 				if candDeadline < winnerDeadline {
 					winner = candID

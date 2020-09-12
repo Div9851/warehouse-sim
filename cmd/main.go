@@ -4,8 +4,6 @@ import (
 	"flag"
 	"fmt"
 	"math/rand"
-	"os"
-	"path/filepath"
 	"sync"
 	"time"
 
@@ -15,7 +13,6 @@ import (
 
 func main() {
 	envPath := flag.String("env", "", "環境設定ファイルのパス")
-	outputPath := flag.String("output", "", "結果を出力するディレクトリのパス")
 	concurrent := flag.Int("concurrent", 1, "並行して実行するシミュレーションの数")
 	total := flag.Int("total", 1, "実行するシミュレーションの数")
 	verbose := flag.Bool("verbose", false, "シミュレーションの詳細を出力するかどうか")
@@ -25,33 +22,45 @@ func main() {
 		panic(err)
 	}
 	var totalProcessTime float64
-	for i := 0; i < *total; i += *concurrent {
+	var totalItems int
+	var totalPickupCounts int
+	var totalClearCounts int
+
+	for done := 0; done < *total; done += *concurrent {
 		startTime := time.Now()
-		k := *concurrent
-		if (*total - i) < k {
-			k = *total - i
+		now := *concurrent
+		if (*total - done) < now {
+			now = *total - done
 		}
+		results := make([]*sim.Result, now)
 		wg := &sync.WaitGroup{}
-		for j := 0; j < k; j++ {
+		for i := 0; i < now; i++ {
 			wg.Add(1)
-			go func() {
+			go func(idx int) {
 				seed := rand.Int63()
 				sim := sim.New(env, seed)
-				jsonData := sim.Do(*verbose)
-				file, err := os.Create(filepath.Join(*outputPath, env.Name+"_"+fmt.Sprint(seed)+".json"))
-				if err != nil {
-					panic(err)
-				}
-				defer file.Close()
-				file.WriteString(jsonData)
+				sim.Do(*verbose)
+				results[idx] = sim.GetResult()
 				wg.Done()
-			}()
+			}(i)
 		}
 		wg.Wait()
+		for _, result := range results {
+			totalItems += result.TotalItems
+			for _, pickup := range result.PickupCounts {
+				totalPickupCounts += pickup
+			}
+			for _, clear := range result.ClearCounts {
+				totalClearCounts += clear
+			}
+		}
 		endTime := time.Now()
 		processTime := endTime.Sub(startTime).Seconds()
-		fmt.Printf("%v: process time %v sec\n", i, processTime)
+		fmt.Printf("process time %v sec\n", processTime)
 		totalProcessTime += processTime
 	}
 	fmt.Printf("total process time %v sec\n", totalProcessTime)
+	fmt.Printf("avg. items: %v\n", float64(totalItems)/float64(*total))
+	fmt.Printf("avg. pickup: %v\n", float64(totalPickupCounts)/float64(*total))
+	fmt.Printf("avg. clear: %v\n", float64(totalClearCounts)/float64(*total))
 }
