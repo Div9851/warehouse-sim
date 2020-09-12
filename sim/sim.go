@@ -50,7 +50,8 @@ func New(env *env.Env, seed int64) *Simulator {
 	for _, pos := range env.AllPos {
 		randomValues[pos] = simRand.Float64()
 	}
-	state := state.New(1, agentItems, agentPos, posItems, randomValues)
+	success := make([]bool, env.NumAgents)
+	state := state.New(1, agentItems, agentPos, posItems, randomValues, success)
 	return &Simulator{Env: env, State: state, TotalRewards: totalRewards, PickupCounts: pickupCounts, ClearCounts: clearCounts, SimRand: simRand, Rands: rands, Seed: seed}
 }
 
@@ -93,10 +94,10 @@ func (sim *Simulator) Next() bool {
 	}
 	nxtState, lastAppear, lastRewards := state.NextState(sim.State, actions, sim.Env, sim.SimRand)
 	for i, act := range actions {
-		if act == action.CLEAR && lastRewards[i] > 0 {
+		if act == action.CLEAR && nxtState.Success[i] {
 			sim.ClearCounts[i]++
 		}
-		if act == action.PICKUP && lastRewards[i] > 0 {
+		if act == action.PICKUP && nxtState.Success[i] {
 			sim.PickupCounts[i]++
 		}
 	}
