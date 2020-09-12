@@ -32,6 +32,9 @@ func TestLoadFromJSON(t *testing.T) {
 	if env.PickupReward != 100 {
 		t.Fatalf("env.PickupReward should be `100`, but `%v`", env.PickupReward)
 	}
+	if env.DIYBonus != 70 {
+		t.Fatalf("env.DIYBonus should be `100`, but `%v`", env.DIYBonus)
+	}
 	if env.MapDataPath != "map_data.txt" {
 		t.Fatalf("env.MapDataPath should be `map_data.txt`, but `%v`", env.MapDataPath)
 	}

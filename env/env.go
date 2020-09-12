@@ -20,6 +20,7 @@ type Env struct {
 	TimeLimit    int     `json:"time_limit"`
 	ClearReward  float64 `json:"clear_reward"`
 	PickupReward float64 `json:"pickup_reward"`
+	DIYBonus     float64 `json:"DIY_bonus"` //自分でアイテムを運んだとき/回収したときに追加で得られるReward
 	MapDataPath  string  `json:"map_data_path"`
 	AppearProb   float64 `json:"appear_prob"`
 	DepotPos     pos.Pos `json:"depot_pos"`

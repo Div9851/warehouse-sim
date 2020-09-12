@@ -6,6 +6,7 @@
   "time_limit": 10,
   "clear_reward": 100,
   "pickup_reward": 100,
+  "DIY_bonus": 70,
   "map_data_path": "map_data.txt",
   "appear_prob": 0.8,
   "depot_pos": { "x": 0, "y": 3 },

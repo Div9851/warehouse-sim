@@ -28,7 +28,10 @@ func nextItems(state *State, actions []int, env *env.Env, rnd *rand.Rand) ([][]i
 		case action.PICKUP:
 			//まだアイテムを拾うことが出来, かつそこにアイテムがあるなら
 			if len(agentItems[i]) < env.MaxItems && len(posItems[pos]) > 0 {
-				rewards[i] += env.PickupReward
+				for id := 0; id < env.NumAgents; id++ {
+					rewards[id] += env.PickupReward
+				}
+				rewards[i] += env.DIYBonus
 				agentItems[i] = append(agentItems[i], posItems[pos][0])
 				posItems[pos] = posItems[pos][1:]
 				if len(posItems[pos]) == 0 {
@@ -36,9 +39,12 @@ func nextItems(state *State, actions []int, env *env.Env, rnd *rand.Rand) ([][]i
 				}
 			}
 		case action.CLEAR:
-			//デポにいるなら
-			if pos == env.DepotPos {
-				rewards[i] += env.ClearReward * float64(len(agentItems[i]))
+			//デポにいて, かつアイテムをもっているなら
+			if pos == env.DepotPos && len(agentItems[i]) > 0 {
+				for id := 0; id < env.NumAgents; id++ {
+					rewards[id] += env.ClearReward * float64(len(agentItems[i]))
+				}
+				rewards[i] += env.DIYBonus * float64(len(agentItems[i]))
 				agentItems[i] = []int{}
 			}
 		}
