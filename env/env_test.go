@@ -23,9 +23,6 @@ func TestLoadFromJSON(t *testing.T) {
 	if env.LastTurn != 100 {
 		t.Fatalf("env.LastTurn should be `100`, but `%v`", env.LastTurn)
 	}
-	if env.TimeLimit != 10 {
-		t.Fatalf("env.TimeLimit should be `10`, but `%v`", env.TimeLimit)
-	}
 	if env.Reward != 100 {
 		t.Fatalf("env.Reward should be `100`, but `%v`", env.Reward)
 	}

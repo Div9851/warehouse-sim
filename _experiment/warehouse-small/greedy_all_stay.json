@@ -3,7 +3,6 @@
   "num_agents": 3,
   "max_items": 1,
   "last_turn": 100,
-  "time_limit": 20,
   "reward": 100,
   "DIY_bonus": 70,
   "map_data_path": "map_data.txt",

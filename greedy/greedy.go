@@ -15,9 +15,9 @@ import (
 func eval(id int, pos pos.Pos, state *state.State, env *env.Env) float64 {
 	d := 1 + float64(env.MinDist[state.AgentPos[id]][pos])
 	if pos == env.DepotPos {
-		return float64(len(state.AgentItems[id])) * env.Reward / d
+		return float64(state.AgentItems[id]) * env.Reward / d
 	}
-	m := math.Min(float64(len(state.PosItems[pos])), float64(env.MaxItems-len(state.AgentItems[id])))
+	m := math.Min(float64(state.PosItems[pos]), float64(env.MaxItems-state.AgentItems[id]))
 	return m * env.Reward / d
 }
 

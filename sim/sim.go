@@ -34,9 +34,9 @@ type Simulator struct {
 //New 環境設定とシード値を受け取り, シミュレータを返す
 func New(env *env.Env, seed int64) *Simulator {
 	totalRewards := make([]float64, env.NumAgents)
-	agentItems := make([][]int, env.NumAgents)
+	agentItems := make([]int, env.NumAgents)
 	agentPos := make([]pos.Pos, env.NumAgents)
-	posItems := make(map[pos.Pos][]int)
+	posItems := make(map[pos.Pos]int)
 	pickupCounts := make([]int, env.NumAgents)
 	clearCounts := make([]int, env.NumAgents)
 	simRand := rand.New(rand.NewSource(seed))

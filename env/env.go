@@ -17,7 +17,6 @@ type Env struct {
 	NumAgents   int     `json:"num_agents"`
 	MaxItems    int     `json:"max_items"`
 	LastTurn    int     `json:"last_turn"`
-	TimeLimit   int     `json:"time_limit"`
 	Reward      float64 `json:"reward"`
 	DIYBonus    float64 `json:"DIY_bonus"` //自分でアイテムを運んだとき/回収したときに追加で得られるReward
 	MapDataPath string  `json:"map_data_path"`

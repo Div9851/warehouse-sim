@@ -70,33 +70,6 @@ func doDFS(state *State, env *env.Env, agentPos []pos.Pos, former map[pos.Pos]in
 				status[candID] = DECIDED
 				agentPos[candID] = state.AgentPos[candID]
 			}
-		case "DEADLINE BASE":
-			winner := -1
-			winnerDeadline := 1 << 30
-			for _, candID := range candidates[agentPos[id]] {
-				candDeadline := 1 << 30
-				if len(state.AgentItems[candID]) > 0 {
-					candDeadline = state.AgentItems[candID][0]
-				}
-				//今いる場所にとどまるエージェントが最優先
-				if candID == formerID {
-					candDeadline = -100
-				}
-				//現在デポにいるエージェントを優先
-				if state.AgentPos[candID] == env.DepotPos {
-					candDeadline = -99
-				}
-				if candDeadline < winnerDeadline {
-					winner = candID
-					winnerDeadline = candDeadline
-				}
-			}
-			for _, candID := range candidates[agentPos[id]] {
-				status[candID] = DECIDED
-				if candID != winner {
-					agentPos[candID] = state.AgentPos[candID]
-				}
-			}
 		}
 	}
 	for i := 0; i < env.NumAgents; i++ {
