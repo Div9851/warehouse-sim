@@ -53,12 +53,18 @@ func makeTuple(id int, pos pos.Pos, value float64, randomVal float64) tuple {
 }
 
 //Greedy 貪欲法で行動を決定する
-func Greedy(state *state.State, env *env.Env, rnd *rand.Rand) []int {
+func Greedy(state *state.State, env *env.Env, rnd *rand.Rand) [][]int {
 	dest := make(map[int]pos.Pos)
 	value := make(map[int]float64)
-	reserved := make(map[pos.Pos]bool)
+	reserved := make(map[pos.Pos]int)
 	ts := make(tuples, 0)
 	for id := 0; id < env.NumAgents; id++ {
+		//アイテムを最大数もっているならデポを目的地にする
+		if state.AgentItems[id] == env.MaxItems {
+			dest[id] = env.DepotPos
+			value[id] = eval(id, env.DepotPos, state, env)
+			continue
+		}
 		for pos := range state.PosItems {
 			ts = append(ts, makeTuple(id, pos, eval(id, pos, state, env), state.RandomValues[pos]))
 		}
@@ -71,28 +77,28 @@ func Greedy(state *state.State, env *env.Env, rnd *rand.Rand) []int {
 		if exist {
 			continue
 		}
-		//デポは例外的に複数のエージェントが同時に目的地に出来る
+		//デポは絶対に目的地に出来る
 		if t.Pos == env.DepotPos {
 			dest[t.ID] = t.Pos
 			value[t.ID] = t.Value
 			continue
 		}
-		//目的地に出来るのは一人だけ
-		if reserved[t.Pos] {
+		//すでにアイテム数と同じ数のエージェントが予約していたらダメ
+		if reserved[t.Pos] == state.PosItems[t.Pos] {
 			continue
 		}
 		dest[t.ID] = t.Pos
 		value[t.ID] = t.Value
-		reserved[t.Pos] = true
+		reserved[t.Pos]++
 	}
-	actions := make([]int, env.NumAgents)
+	actionLists := make([][]int, env.NumAgents)
 	for id := 0; id < env.NumAgents; id++ {
 		switch {
 		case state.AgentPos[id] == dest[id] && value[id] > 0: //目的地にいて, 価値が非0なら
 			if dest[id] == env.DepotPos {
-				actions[id] = action.CLEAR
+				actionLists[id] = []int{action.CLEAR}
 			} else {
-				actions[id] = action.PICKUP
+				actionLists[id] = []int{action.PICKUP}
 			}
 		case state.AgentPos[id] != dest[id] && value[id] > 0: //目的地にいなくて, 価値が非0なら
 			moves := []int{action.UP, action.DOWN, action.LEFT, action.RIGHT}
@@ -104,7 +110,7 @@ func Greedy(state *state.State, env *env.Env, rnd *rand.Rand) []int {
 					goodMoves = append(goodMoves, move)
 				}
 			}
-			actions[id] = goodMoves[rnd.Intn(len(goodMoves))]
+			actionLists[id] = []int{goodMoves[rnd.Intn(len(goodMoves))]}
 		default: //目的地の価値が0ならランダムに行動
 			moves := []int{action.UP, action.DOWN, action.LEFT, action.RIGHT}
 			goodMoves := []int{}
@@ -115,8 +121,8 @@ func Greedy(state *state.State, env *env.Env, rnd *rand.Rand) []int {
 					goodMoves = append(goodMoves, move)
 				}
 			}
-			actions[id] = goodMoves[rnd.Intn(len(goodMoves))]
+			actionLists[id] = []int{goodMoves[rnd.Intn(len(goodMoves))]}
 		}
 	}
-	return actions
+	return actionLists
 }

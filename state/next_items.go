@@ -1,16 +1,14 @@
 package state
 
 import (
-	"math/rand"
-
 	"github.com/Div9851/warehouse-sim/action"
 	"github.com/Div9851/warehouse-sim/env"
 	"github.com/Div9851/warehouse-sim/pos"
 )
 
-//nextItems 現在の状態, 各エージェントの行動, 環境設定, 乱数生成器を受け取り
-//次の状態のAgentItems, PosItems, Success, アイテムが出現した場所, 各エージェントが得た報酬を返す
-func nextItems(state *State, actions []int, env *env.Env, rnd *rand.Rand) ([]int, map[pos.Pos]int, []bool, *pos.Pos, []float64) {
+//nextItems 現在の状態, 各エージェントの行動, 環境設定を受け取り
+//次の状態のAgentItems, PosItems, Success, 各エージェントが得た報酬を返す
+func nextItems(state *State, actions []int, env *env.Env) ([]int, map[pos.Pos]int, []bool, []float64) {
 	agentItems := make([]int, env.NumAgents)
 	copy(agentItems, state.AgentItems)
 	posItems := make(map[pos.Pos]int)
@@ -48,12 +46,5 @@ func nextItems(state *State, actions []int, env *env.Env, rnd *rand.Rand) ([]int
 			}
 		}
 	}
-	//env.AppearProbで与えられる確率で, 新たなアイテムを出現させる
-	var lastAppear *pos.Pos
-	if rnd.Float64() < env.AppearProb {
-		pos := env.AllPos[rnd.Intn(len(env.AllPos))]
-		posItems[pos]++
-		lastAppear = &pos
-	}
-	return agentItems, posItems, success, lastAppear, rewards
+	return agentItems, posItems, success, rewards
 }

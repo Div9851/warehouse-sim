@@ -38,11 +38,11 @@ func TestLoadFromJSON(t *testing.T) {
 	if env.DepotPos.X != 0 || env.DepotPos.Y != 3 {
 		t.Fatalf("env.DepotPos should be `(0, 3)`, but `(%v, %v)`", env.DepotPos.X, env.DepotPos.Y)
 	}
-	if env.Resolve != "ALL STAY" {
-		t.Fatalf("env.ResolveStr should be `ALL STAY`, but `%v`", env.Resolve)
+	if !env.Resolve {
+		t.Fatalf("env.Resolve should be `true`, but `%v`", env.Resolve)
 	}
 	if env.Algorithm != "MCTS" {
-		t.Fatalf("env.AlgorithmStr should be `MCTS`, but `%v`", env.Algorithm)
+		t.Fatalf("env.Algorithm should be `MCTS`, but `%v`", env.Algorithm)
 	}
 	if env.DiscountFactor != 0.9 {
 		t.Fatalf("env.DiscountFactor should be `0.9`, but `%v`", env.DiscountFactor)

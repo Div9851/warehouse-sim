@@ -16,5 +16,12 @@ type State struct {
 
 //New 新しいStateへのポインタを返す
 func New(turn int, agentItems []int, agentPos []pos.Pos, posItems map[pos.Pos]int, randomValues map[pos.Pos]float64, success []bool) *State {
-	return &State{Turn: turn, AgentItems: agentItems, AgentPos: agentPos, PosItems: posItems, RandomValues: randomValues, Success: success}
+	return &State{
+		Turn:         turn,
+		AgentItems:   agentItems,
+		AgentPos:     agentPos,
+		PosItems:     posItems,
+		RandomValues: randomValues,
+		Success:      success,
+	}
 }

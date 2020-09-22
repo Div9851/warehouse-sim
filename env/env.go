@@ -22,7 +22,7 @@ type Env struct {
 	MapDataPath string  `json:"map_data_path"`
 	AppearProb  float64 `json:"appear_prob"`
 	DepotPos    pos.Pos `json:"depot_pos"`
-	Resolve     string  `json:"resolve"`   //ALL STAY, DEADLINE BASE
+	Resolve     bool    `json:"resolve"`
 	Algorithm   string  `json:"algorithm"` //GREEDY, MCTS
 
 	DiscountFactor float64 `json:"mcts_discount_factor"`

@@ -76,24 +76,24 @@ func (sim *Simulator) Next() bool {
 	if sim.State.Turn == sim.Env.LastTurn {
 		return false
 	}
-	var actions []int
+	var actionLists [][]int
 	switch sim.Env.Algorithm {
 	case "GREEDY":
-		actions = greedy.Greedy(sim.State, sim.Env, sim.Rands[0])
+		actionLists = greedy.Greedy(sim.State, sim.Env, sim.Rands[0])
 	case "MCTS":
 		wg := &sync.WaitGroup{}
-		actions = make([]int, sim.Env.NumAgents)
+		actionLists = make([][]int, sim.Env.NumAgents)
 		for i := 0; i < sim.Env.NumAgents; i++ {
 			wg.Add(1)
 			go func(id int) {
-				actions[id] = mcts.MCTS(id, sim.State, sim.Env, sim.Rands[id])
+				actionLists[id] = mcts.MCTS(id, sim.State, sim.Env, sim.Rands[id])
 				wg.Done()
 			}(i)
 		}
 		wg.Wait()
 	}
-	nxtState, lastAppear, lastRewards := state.NextState(sim.State, actions, sim.Env, sim.SimRand)
-	for i, act := range actions {
+	nxtState, lastActions, lastAppear, lastRewards := state.NextState(sim.State, actionLists, sim.Env, sim.SimRand)
+	for i, act := range lastActions {
 		if act == action.CLEAR && nxtState.Success[i] {
 			sim.ClearCounts[i]++
 		}
@@ -105,7 +105,7 @@ func (sim *Simulator) Next() bool {
 		sim.TotalItems++
 	}
 	sim.State = nxtState
-	sim.LastActions = actions
+	sim.LastActions = lastActions
 	sim.LastRewards = lastRewards
 	sim.LastAppear = lastAppear
 	for i, r := range lastRewards {

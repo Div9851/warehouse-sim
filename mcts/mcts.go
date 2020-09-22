@@ -11,7 +11,7 @@ import (
 )
 
 //MCTS モンテカルロ木探索で行動を決定する
-func MCTS(id int, startState *state.State, env *env.Env, rnd *rand.Rand) int {
+func MCTS(id int, startState *state.State, env *env.Env, rnd *rand.Rand) []int {
 	states := []*state.State{startState}
 	//ある状態に遷移したときに得られる報酬
 	stateRewards := make([]float64, 1)
@@ -41,8 +41,8 @@ func MCTS(id int, startState *state.State, env *env.Env, rnd *rand.Rand) int {
 			//roll out
 			now := states[stateID]
 			for now.Turn < env.LastTurn && depth < env.MaxDepth {
-				actions := greedy.Greedy(now, env, rnd)
-				nxt, _, rewards := state.NextState(now, actions, env, rnd)
+				actionLists := greedy.Greedy(now, env, rnd)
+				nxt, _, _, rewards := state.NextState(now, actionLists, env, rnd)
 				now = nxt
 				r += k * rewards[id]
 				k *= env.DiscountFactor
@@ -75,9 +75,9 @@ func MCTS(id int, startState *state.State, env *env.Env, rnd *rand.Rand) int {
 		if len(childs[stateID][chosen]) == env.MaxChilds {
 			to = childs[stateID][chosen][rnd.Intn(len(childs[stateID][chosen]))]
 		} else {
-			actions := greedy.Greedy(states[stateID], env, rnd)
-			actions[id] = chosen
-			nxt, _, rewards := state.NextState(states[stateID], actions, env, rnd)
+			actionLists := greedy.Greedy(states[stateID], env, rnd)
+			actionLists[id] = []int{chosen}
+			nxt, _, _, rewards := state.NextState(states[stateID], actionLists, env, rnd)
 			to = len(states)
 			childs[stateID][chosen] = append(childs[stateID][chosen], to)
 			states = append(states, nxt)
@@ -114,5 +114,5 @@ func MCTS(id int, startState *state.State, env *env.Env, rnd *rand.Rand) int {
 			bestActions = append(bestActions, act)
 		}
 	}
-	return bestActions[rnd.Intn(len(bestActions))]
+	return []int{bestActions[rnd.Intn(len(bestActions))]}
 }
