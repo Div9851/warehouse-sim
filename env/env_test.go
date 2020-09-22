@@ -23,6 +23,9 @@ func TestLoadFromJSON(t *testing.T) {
 	if env.LastTurn != 100 {
 		t.Fatalf("env.LastTurn should be `100`, but `%v`", env.LastTurn)
 	}
+	if env.MaxLen != 1 {
+		t.Fatalf("env.MaxLen should be `1`, but `%v`", env.MaxLen)
+	}
 	if env.Reward != 100 {
 		t.Fatalf("env.Reward should be `100`, but `%v`", env.Reward)
 	}
@@ -96,6 +99,17 @@ func TestGetAllPos(t *testing.T) {
 	allPos := getAllPos(mapData, pos.New(0, 3))
 	if len(allPos) != 29 {
 		t.Fatalf("len(allPos) should be `29`, but `%v`", len(allPos))
+	}
+}
+
+func TestGetValidMoves(t *testing.T) {
+	mapData, err := loadMapData("testdata/map_data.txt")
+	if err != nil {
+		t.Fatal(err)
+	}
+	validMoves := getValidMoves(mapData, pos.New(0, 3))
+	if len(validMoves) != 3 {
+		t.Fatalf("len(validMoves) should be `3`, but `%v`", len(validMoves))
 	}
 }
 

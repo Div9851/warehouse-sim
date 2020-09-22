@@ -8,6 +8,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/Div9851/warehouse-sim/action"
 	"github.com/Div9851/warehouse-sim/pos"
 )
 
@@ -17,6 +18,7 @@ type Env struct {
 	NumAgents   int     `json:"num_agents"`
 	MaxItems    int     `json:"max_items"`
 	LastTurn    int     `json:"last_turn"`
+	MaxLen      int     `json:"max_len"` //行動のリストの最大長（この値より長い場合は無視される）
 	Reward      float64 `json:"reward"`
 	DIYBonus    float64 `json:"DIY_bonus"` //自分でアイテムを運んだとき/回収したときに追加で得られるReward
 	MapDataPath string  `json:"map_data_path"`
@@ -35,7 +37,8 @@ type Env struct {
 	MapDataH       int
 	MapDataW       int
 	MinDist        map[pos.Pos]map[pos.Pos]int
-	AllPos         []pos.Pos //壁でない全ての座標のスライス（デポを含まない）
+	AllPos         []pos.Pos         //壁でない全ての座標のスライス（デポを含まない）
+	ValidMoves     map[pos.Pos][]int //その場所で選択できる行動のリスト
 }
 
 //Load 環境設定をJSONファイルから読み込む
@@ -52,9 +55,14 @@ func Load(path string) (*Env, error) {
 	env.MapDataH = len(env.MapData)
 	env.MapDataW = len(env.MapData[0])
 	env.AllPos = getAllPos(env.MapData, env.DepotPos)
+	env.ValidMoves = make(map[pos.Pos][]int)
+	for _, p := range env.AllPos {
+		env.ValidMoves[p] = getValidMoves(env.MapData, p)
+	}
+	env.ValidMoves[env.DepotPos] = getValidMoves(env.MapData, env.DepotPos)
 	env.MinDist = make(map[pos.Pos]map[pos.Pos]int)
-	for _, s := range env.AllPos {
-		env.MinDist[s] = doBFS(env.MapData, s)
+	for _, p := range env.AllPos {
+		env.MinDist[p] = doBFS(env.MapData, p)
 	}
 	env.MinDist[env.DepotPos] = doBFS(env.MapData, env.DepotPos)
 	return env, nil
@@ -111,6 +119,20 @@ func getAllPos(mapData []string, depotPos pos.Pos) []pos.Pos {
 		}
 	}
 	return allPos
+}
+
+//getValidMoves マップデータと座標を受け取り, 選択できる行動のリストを返す
+func getValidMoves(mapData []string, targetPos pos.Pos) []int {
+	moves := []int{action.UP, action.DOWN, action.LEFT, action.RIGHT}
+	validMoves := []int{}
+	for _, move := range moves {
+		nxt := pos.NextPos(targetPos, move, mapData)
+		//動けるなら
+		if nxt != targetPos {
+			validMoves = append(validMoves, move)
+		}
+	}
+	return validMoves
 }
 
 //doBFS マップデータと始点を受け取り, 各点までの最短距離のマップを返す

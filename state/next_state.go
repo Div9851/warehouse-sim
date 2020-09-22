@@ -16,7 +16,9 @@ func NextState(state *State, actionLists [][]int, env *env.Env, rnd *rand.Rand) 
 		actions[id] = actionLists[id][0]
 		rank[id] = 1
 	}
+	count := 0
 	for {
+		count++
 		agentItems, posItems, success, rewards := nextItems(state, actions, env)
 		nxtPos := nextPos(state, actions, env)
 		update := false
@@ -27,7 +29,7 @@ func NextState(state *State, actionLists [][]int, env *env.Env, rnd *rand.Rand) 
 				update = true
 			}
 		}
-		if !update {
+		if !update || count >= env.MaxLen {
 			var lastAppear *pos.Pos
 			//与えられた確率で新しいアイテムを出現させる
 			if rnd.Float64() < env.AppearProb {
