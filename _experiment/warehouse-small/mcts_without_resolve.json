@@ -1,5 +1,5 @@
 {
-  "name": "mcts_all_stay",
+  "name": "mcts_without_resolve",
   "num_agents": 3,
   "max_items": 1,
   "last_turn": 100,
@@ -10,6 +10,7 @@
   "depot_pos": { "x": 0, "y": 3 },
   "algorithm": "MCTS",
   "resolve": false,
+
   "mcts_discount_factor": 0.9,
   "mcts_expand_thresh": 1,
   "mcts_max_childs": 5,

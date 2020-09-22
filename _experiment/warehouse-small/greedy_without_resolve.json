@@ -1,5 +1,5 @@
 {
-  "name": "greedy_all_stay",
+  "name": "greedy_without_resolve",
   "num_agents": 3,
   "max_items": 1,
   "last_turn": 100,
