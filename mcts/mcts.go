@@ -3,12 +3,39 @@ package mcts
 import (
 	"math"
 	"math/rand"
+	"sort"
 
 	"github.com/Div9851/warehouse-sim/action"
 	"github.com/Div9851/warehouse-sim/env"
 	"github.com/Div9851/warehouse-sim/greedy"
 	"github.com/Div9851/warehouse-sim/state"
 )
+
+type tuple struct {
+	ID    int
+	Score float64
+}
+
+type tuples []tuple
+
+func (t tuples) Len() int {
+	return len(t)
+}
+
+func (t tuples) Swap(i, j int) {
+	t[i], t[j] = t[j], t[i]
+}
+
+func (t tuples) Less(i, j int) bool {
+	if t[i].Score != t[j].Score {
+		return t[i].Score < t[j].Score
+	}
+	return t[i].ID < t[j].ID
+}
+
+func makeTuple(id int, score float64) tuple {
+	return tuple{ID: id, Score: score}
+}
 
 //MCTS モンテカルロ木探索で行動を決定する
 func MCTS(id int, startState *state.State, env *env.Env, rnd *rand.Rand) []int {
@@ -50,9 +77,17 @@ func MCTS(id int, startState *state.State, env *env.Env, rnd *rand.Rand) []int {
 			}
 			return r
 		}
+		validActions := make([]int, len(env.ValidMoves[states[stateID].AgentPos[id]]))
+		copy(validActions, env.ValidMoves[states[stateID].AgentPos[id]])
+		if states[stateID].PosItems[states[stateID].AgentPos[id]] > 0 && states[stateID].AgentItems[id] < env.MaxItems {
+			validActions = append(validActions, action.PICKUP)
+		}
+		if states[stateID].AgentPos[id] == env.DepotPos && states[stateID].AgentItems[id] > 0 {
+			validActions = append(validActions, action.CLEAR)
+		}
 		var bestScore float64
 		var bestActions []int
-		for act := 0; act < action.NUM; act++ {
+		for _, act := range validActions {
 			var score float64
 			if counts[stateID][act] == 0 {
 				score = math.Inf(0)
@@ -98,21 +133,28 @@ func MCTS(id int, startState *state.State, env *env.Env, rnd *rand.Rand) []int {
 	for i := 0; i < env.NumOfIter; i++ {
 		dfs(0, 1)
 	}
-	bestScore := math.Inf(-1)
-	var bestActions []int
-	for act := 0; act < action.NUM; act++ {
+	ts := make(tuples, 0)
+	validActions := make([]int, len(env.ValidMoves[states[0].AgentPos[id]]))
+	copy(validActions, env.ValidMoves[states[0].AgentPos[id]])
+	if states[0].PosItems[states[0].AgentPos[id]] > 0 && states[0].AgentItems[id] < env.MaxItems {
+		validActions = append(validActions, action.PICKUP)
+	}
+	if states[0].AgentPos[id] == env.DepotPos && states[0].AgentItems[id] > 0 {
+		validActions = append(validActions, action.CLEAR)
+	}
+	for _, act := range validActions {
 		var score float64
 		if counts[0][act] == 0 {
 			score = math.Inf(-1)
 		} else {
 			score = sumReward[0][act] / float64(counts[0][act])
 		}
-		if bestScore < score {
-			bestScore = score
-			bestActions = []int{act}
-		} else if bestScore == score {
-			bestActions = append(bestActions, act)
-		}
+		ts = append(ts, makeTuple(act, score))
 	}
-	return []int{bestActions[rnd.Intn(len(bestActions))]}
+	sort.Sort(sort.Reverse(ts))
+	actions := []int{}
+	for idx := 0; idx < env.MaxLen && idx < len(ts); idx++ {
+		actions = append(actions, ts[idx].ID)
+	}
+	return actions
 }
