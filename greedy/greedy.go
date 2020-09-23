@@ -102,19 +102,25 @@ func Greedy(state *state.State, env *env.Env, rnd *rand.Rand) [][]int {
 			}
 		case state.AgentPos[id] != dest[id] && value[id] > 0: //目的地にいなくて, 価値が非0なら
 			validMoves := env.ValidMoves[state.AgentPos[id]]
-			goodMoves := []int{}
+			moves := []int{}
 			for _, move := range validMoves {
 				nxt := pos.NextPos(state.AgentPos[id], move, env.MapData)
 				//目的地に近づくなら
-				if env.MinDist[state.AgentPos[id]][dest[id]] > env.MinDist[nxt][dest[id]] {
-					goodMoves = append(goodMoves, move)
+				if env.MinDist[state.AgentPos[id]][dest[id]] > env.MinDist[nxt][dest[id]] && len(moves) < env.MaxLen {
+					moves = append(moves, move)
 				}
 			}
-			goodMoves = append(goodMoves, validMoves[rnd.Intn(len(validMoves))])
-			actionLists[id] = goodMoves
+			for k := len(moves); k < env.MaxLen; k++ {
+				moves = append(moves, validMoves[rnd.Intn(len(validMoves))])
+			}
+			actionLists[id] = moves
 		default: //目的地の価値が0ならランダムに行動
 			validMoves := env.ValidMoves[state.AgentPos[id]]
-			actionLists[id] = []int{validMoves[rnd.Intn(len(validMoves))]}
+			moves := []int{}
+			for k := 0; k < env.MaxLen; k++ {
+				moves = append(moves, validMoves[rnd.Intn(len(validMoves))])
+			}
+			actionLists[id] = moves
 		}
 	}
 	return actionLists
