@@ -14,7 +14,6 @@ import (
 
 //Env 環境設定
 type Env struct {
-	Name        string  `json:"name"`
 	NumAgents   int     `json:"num_agents"`
 	MaxItems    int     `json:"max_items"`
 	LastTurn    int     `json:"last_turn"`

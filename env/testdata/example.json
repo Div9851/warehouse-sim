@@ -1,5 +1,4 @@
 {
-  "name": "Example",
   "num_agents": 3,
   "max_items": 1,
   "last_turn": 100,
@@ -11,6 +10,7 @@
   "depot_pos": { "x": 0, "y": 3 },
   "resolve": true,
   "algorithm": "MCTS",
+
   "mcts_discount_factor": 0.9,
   "mcts_expand_thresh": 1,
   "mcts_max_childs": 5,

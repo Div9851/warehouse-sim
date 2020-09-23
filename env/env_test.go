@@ -11,9 +11,6 @@ func TestLoadFromJSON(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if env.Name != "Example" {
-		t.Fatalf("env.Name should be `Example`, but `%v`", env.Name)
-	}
 	if env.NumAgents != 3 {
 		t.Fatalf("env.NumAgents should be `3`, but `%v`", env.NumAgents)
 	}
