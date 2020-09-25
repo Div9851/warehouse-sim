@@ -8,5 +8,6 @@ const (
 	RIGHT
 	PICKUP
 	CLEAR
+	STAY
 	NUM
 )

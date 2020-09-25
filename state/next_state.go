@@ -3,6 +3,7 @@ package state
 import (
 	"math/rand"
 
+	"github.com/Div9851/warehouse-sim/action"
 	"github.com/Div9851/warehouse-sim/env"
 	"github.com/Div9851/warehouse-sim/pos"
 )
@@ -20,13 +21,22 @@ func NextState(state *State, actionLists [][]int, env *env.Env, rnd *rand.Rand) 
 	for {
 		count++
 		agentItems, posItems, success, rewards := nextItems(state, actions, env)
-		nxtPos := nextPos(state, actions, env)
+		decided := make([]bool, env.NumAgents)
+		nxtPos := nextPos(state, actions, decided, env)
 		update := false
 		for id := 0; id < env.NumAgents; id++ {
-			if nxtPos[id] != pos.NextPos(state.AgentPos[id], actions[id], env.MapData) && rank[id] < len(actionLists[id]) {
+			if nxtPos[id] == pos.NextPos(state.AgentPos[id], actions[id], env.MapData) {
+				decided[id] = true
+				continue
+			}
+			if rank[id] < len(actionLists[id]) {
 				actions[id] = actionLists[id][rank[id]]
 				rank[id]++
 				update = true
+			} else {
+				//もう動けないことが確定した
+				actions[id] = action.STAY
+				decided[id] = true
 			}
 		}
 		if !update || count >= env.MaxLen {

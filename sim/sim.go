@@ -152,6 +152,8 @@ func (sim *Simulator) DumpState() string {
 				actStr = "PICKUP"
 			case action.CLEAR:
 				actStr = "CLEAR"
+			case action.STAY:
+				actStr = "STAY"
 			}
 			fmt.Fprintf(&b, "agent %v: %v ", i, actStr)
 		}
