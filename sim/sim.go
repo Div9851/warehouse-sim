@@ -76,22 +76,21 @@ func (sim *Simulator) Next() bool {
 	if sim.State.Turn == sim.Env.LastTurn {
 		return false
 	}
-	var actionLists [][]int
-	switch sim.Env.Algorithm {
-	case "GREEDY":
-		actionLists = greedy.Greedy(sim.State, sim.Env, sim.Rands[0])
-	case "MCTS":
-		wg := &sync.WaitGroup{}
-		actionLists = make([][]int, sim.Env.NumAgents)
-		for i := 0; i < sim.Env.NumAgents; i++ {
-			wg.Add(1)
-			go func(id int) {
+	actionLists := make([][]int, sim.Env.NumAgents)
+	wg := &sync.WaitGroup{}
+	for i := 0; i < sim.Env.NumAgents; i++ {
+		wg.Add(1)
+		go func(id int) {
+			switch sim.Env.Algorithms[id] {
+			case "MCTS":
 				actionLists[id] = mcts.MCTS(id, sim.State, sim.Env, sim.Rands[id])
-				wg.Done()
-			}(i)
-		}
-		wg.Wait()
+			default:
+				actionLists[id] = greedy.Greedy(sim.State, sim.Env, sim.Rands[id])[id]
+			}
+			wg.Done()
+		}(i)
 	}
+	wg.Wait()
 	nxtState, lastActions, lastAppear, lastRewards := state.NextState(sim.State, actionLists, sim.Env, sim.SimRand)
 	for i, act := range lastActions {
 		if act == action.CLEAR && nxtState.Success[i] {

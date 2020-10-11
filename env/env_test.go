@@ -41,8 +41,17 @@ func TestLoadFromJSON(t *testing.T) {
 	if !env.Resolve {
 		t.Fatalf("env.Resolve should be `true`, but `%v`", env.Resolve)
 	}
-	if env.Algorithm != "MCTS" {
-		t.Fatalf("env.Algorithm should be `MCTS`, but `%v`", env.Algorithm)
+	if len(env.Algorithms) != 3 {
+		t.Fatalf("len(env.Algorithms) should be `3`, but `%v`", len(env.Algorithms))
+	}
+	if env.Algorithms[0] != "MCTS" {
+		t.Fatalf("env.Algorithms[0] should be `MCTS`, but `%v`", env.Algorithms[0])
+	}
+	if env.Algorithms[1] != "GREEDY" {
+		t.Fatalf("env.Algorithms[1] should be `GREEDY`, but `%v`", env.Algorithms[1])
+	}
+	if env.Algorithms[2] != "GREEDY" {
+		t.Fatalf("env.Algorithms[2] should be `GREEDY`, but `%v`", env.Algorithms[2])
 	}
 	if env.DiscountFactor != 0.9 {
 		t.Fatalf("env.DiscountFactor should be `0.9`, but `%v`", env.DiscountFactor)
