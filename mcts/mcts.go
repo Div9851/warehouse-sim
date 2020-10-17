@@ -77,6 +77,7 @@ func MCTS(id int, startState *state.State, env *env.Env, rnd *rand.Rand) []int {
 			}
 			return r
 		}
+		ts := make(tuples, 0)
 		validActions := make([]int, len(env.ValidMoves[states[stateID].AgentPos[id]]))
 		copy(validActions, env.ValidMoves[states[stateID].AgentPos[id]])
 		if states[stateID].PosItems[states[stateID].AgentPos[id]] > 0 && states[stateID].AgentItems[id] < env.MaxItems {
@@ -85,8 +86,6 @@ func MCTS(id int, startState *state.State, env *env.Env, rnd *rand.Rand) []int {
 		if states[stateID].AgentPos[id] == env.DepotPos && states[stateID].AgentItems[id] > 0 {
 			validActions = append(validActions, action.CLEAR)
 		}
-		var bestScore float64
-		var bestActions []int
 		for _, act := range validActions {
 			var score float64
 			if counts[stateID][act] == 0 {
@@ -96,14 +95,14 @@ func MCTS(id int, startState *state.State, env *env.Env, rnd *rand.Rand) []int {
 				score = sumReward[stateID][act] / float64(counts[stateID][act])
 				score += math.Sqrt(env.UCTparam * math.Log(float64(totalCount[stateID])) / float64(counts[stateID][act]))
 			}
-			if bestScore < score {
-				bestScore = score
-				bestActions = []int{act}
-			} else if bestScore == score {
-				bestActions = append(bestActions, act)
-			}
+			ts = append(ts, makeTuple(act, score))
 		}
-		chosen := bestActions[rnd.Intn(len(bestActions))]
+		sort.Sort(sort.Reverse(ts))
+		actions := []int{}
+		for idx := 0; idx < env.MaxLen && idx < len(ts); idx++ {
+			actions = append(actions, ts[idx].ID)
+		}
+		chosen := actions[0]
 		var to int
 		var r float64
 		//遷移先の数が上限に達していたら
@@ -111,7 +110,7 @@ func MCTS(id int, startState *state.State, env *env.Env, rnd *rand.Rand) []int {
 			to = childs[stateID][chosen][rnd.Intn(len(childs[stateID][chosen]))]
 		} else {
 			actionLists := greedy.Greedy(states[stateID], env, rnd)
-			actionLists[id] = []int{chosen}
+			actionLists[id] = actions
 			nxt, _, _, rewards := state.NextState(states[stateID], actionLists, env, rnd)
 			to = len(states)
 			childs[stateID][chosen] = append(childs[stateID][chosen], to)
