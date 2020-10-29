@@ -53,7 +53,7 @@ func makeTuple(id int, pos pos.Pos, value float64, randomVal float64) tuple {
 }
 
 //Greedy 貪欲法で行動を決定する
-func Greedy(state *state.State, env *env.Env, rnd *rand.Rand) [][]int {
+func Greedy(state *state.State, env *env.Env, rnd *rand.Rand) []int {
 	dest := make(map[int]pos.Pos)
 	value := make(map[int]float64)
 	reserved := make(map[pos.Pos]int)
@@ -91,14 +91,14 @@ func Greedy(state *state.State, env *env.Env, rnd *rand.Rand) [][]int {
 		value[t.ID] = t.Value
 		reserved[t.Pos]++
 	}
-	actionLists := make([][]int, env.NumAgents)
+	actions := make([]int, env.NumAgents)
 	for id := 0; id < env.NumAgents; id++ {
 		switch {
 		case state.AgentPos[id] == dest[id] && value[id] > 0: //目的地にいて, 価値が非0なら
 			if dest[id] == env.DepotPos {
-				actionLists[id] = []int{action.CLEAR}
+				actions[id] = action.CLEAR
 			} else {
-				actionLists[id] = []int{action.PICKUP}
+				actions[id] = action.PICKUP
 			}
 		case state.AgentPos[id] != dest[id] && value[id] > 0: //目的地にいなくて, 価値が非0なら
 			validMoves := env.ValidMoves[state.AgentPos[id]]
@@ -106,22 +106,15 @@ func Greedy(state *state.State, env *env.Env, rnd *rand.Rand) [][]int {
 			for _, move := range validMoves {
 				nxt := pos.NextPos(state.AgentPos[id], move, env.MapData)
 				//目的地に近づくなら
-				if env.MinDist[state.AgentPos[id]][dest[id]] > env.MinDist[nxt][dest[id]] && len(moves) < env.MaxLen {
+				if env.MinDist[state.AgentPos[id]][dest[id]] > env.MinDist[nxt][dest[id]] {
 					moves = append(moves, move)
 				}
 			}
-			for k := len(moves); k < env.MaxLen; k++ {
-				moves = append(moves, validMoves[rnd.Intn(len(validMoves))])
-			}
-			actionLists[id] = moves
+			actions[id] = moves[rnd.Intn(len(moves))]
 		default: //目的地の価値が0ならランダムに行動
 			validMoves := env.ValidMoves[state.AgentPos[id]]
-			moves := []int{}
-			for k := 0; k < env.MaxLen; k++ {
-				moves = append(moves, validMoves[rnd.Intn(len(validMoves))])
-			}
-			actionLists[id] = moves
+			actions[id] = validMoves[rnd.Intn(len(validMoves))]
 		}
 	}
-	return actionLists
+	return actions
 }

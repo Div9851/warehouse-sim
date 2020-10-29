@@ -5,9 +5,9 @@ import (
 	"github.com/Div9851/warehouse-sim/pos"
 )
 
-//nextPos 現在の状態, 各エージェントの行動, 行動が確定しているか否か, 環境設定を受け取って
+//nextPos 現在の状態, 各エージェントの行動, 環境設定を受け取って
 //次の状態のAgentPosを返す
-func nextPos(state *State, actions []int, decided []bool, env *env.Env) []pos.Pos {
+func nextPos(state *State, actions []int, env *env.Env) []pos.Pos {
 	nxtPos := make([]pos.Pos, env.NumAgents)
 	copy(nxtPos, state.AgentPos)
 	//現在ある座標にいるエージェントのID
@@ -21,11 +21,11 @@ func nextPos(state *State, actions []int, decided []bool, env *env.Env) []pos.Po
 			nextID[nxtPos[id]] = append(nextID[nxtPos[id]], id)
 		}
 	}
-	doDFS(state, env, nxtPos, decided, currentID, nextID)
+	doDFS(state, env, nxtPos, currentID, nextID)
 	return nxtPos
 }
 
-func doDFS(state *State, env *env.Env, nxtPos []pos.Pos, decided []bool, currentID map[pos.Pos]int, nextID map[pos.Pos][]int) {
+func doDFS(state *State, env *env.Env, nxtPos []pos.Pos, currentID map[pos.Pos]int, nextID map[pos.Pos][]int) {
 	const (
 		INIT int = iota
 		PENDING
@@ -64,41 +64,10 @@ func doDFS(state *State, env *env.Env, nxtPos []pos.Pos, decided []bool, current
 			status[id] = DECIDED
 			return
 		}
-		if env.Resolve {
-			chosenID := -1
-			bestScore := -1
-			for _, nxtID := range nextID[nxtPos[id]] {
-				//一般のエージェントの優先度はもっているアイテム数
-				score := state.AgentItems[nxtID]
-				//デポにいるエージェントの優先度は999
-				if state.AgentPos[nxtID] == env.DepotPos {
-					score = 999
-				}
-				//すでに行動が確定しているエージェントの優先度は9999
-				if decided[nxtID] {
-					score = 9999
-				}
-				if score > bestScore {
-					chosenID = nxtID
-					bestScore = score
-				} else if score == bestScore && chosenID < nxtID {
-					chosenID = nxtID
-				}
-			}
-			for _, nxtID := range nextID[nxtPos[id]] {
-				if nxtID != chosenID {
-					status[nxtID] = DECIDED
-					nxtPos[nxtID] = state.AgentPos[nxtID]
-				}
-			}
-		} else {
-			for _, nxtID := range nextID[nxtPos[id]] {
-				status[nxtID] = DECIDED
-				//すでに行動が確定しているエージェントでなければSTAY
-				if !decided[nxtID] {
-					nxtPos[nxtID] = state.AgentPos[nxtID]
-				}
-			}
+		//競合しているなら全員STAY
+		for _, nxtID := range nextID[nxtPos[id]] {
+			status[nxtID] = DECIDED
+			nxtPos[nxtID] = state.AgentPos[nxtID]
 		}
 	}
 	for i := 0; i < env.NumAgents; i++ {

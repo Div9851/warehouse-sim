@@ -38,7 +38,7 @@ func makeTuple(id int, score float64) tuple {
 }
 
 //MCTS モンテカルロ木探索で行動を決定する
-func MCTS(id int, startState *state.State, env *env.Env, rnd *rand.Rand) []int {
+func MCTS(id int, startState *state.State, env *env.Env, rnd *rand.Rand) int {
 	states := []*state.State{startState}
 	//ある状態に遷移したときに得られる報酬
 	stateRewards := make([]float64, 1)
@@ -110,9 +110,9 @@ func MCTS(id int, startState *state.State, env *env.Env, rnd *rand.Rand) []int {
 		if len(childs[stateID][chosen]) == env.MaxChilds {
 			to = childs[stateID][chosen][rnd.Intn(len(childs[stateID][chosen]))]
 		} else {
-			actionLists := greedy.Greedy(states[stateID], env, rnd)
-			actionLists[id] = []int{chosen}
-			nxt, _, _, rewards := state.NextState(states[stateID], actionLists, env, rnd)
+			actions := greedy.Greedy(states[stateID], env, rnd)
+			actions[id] = chosen
+			nxt, _, _, rewards := state.NextState(states[stateID], actions, env, rnd)
 			to = len(states)
 			childs[stateID][chosen] = append(childs[stateID][chosen], to)
 			states = append(states, nxt)
@@ -152,9 +152,5 @@ func MCTS(id int, startState *state.State, env *env.Env, rnd *rand.Rand) []int {
 		ts = append(ts, makeTuple(act, score))
 	}
 	sort.Sort(sort.Reverse(ts))
-	actions := []int{}
-	for idx := 0; idx < env.MaxLen && idx < len(ts); idx++ {
-		actions = append(actions, ts[idx].ID)
-	}
-	return actions
+	return ts[0].ID
 }

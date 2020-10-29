@@ -20,9 +20,6 @@ func TestLoadFromJSON(t *testing.T) {
 	if env.LastTurn != 100 {
 		t.Fatalf("env.LastTurn should be `100`, but `%v`", env.LastTurn)
 	}
-	if env.MaxLen != 1 {
-		t.Fatalf("env.MaxLen should be `1`, but `%v`", env.MaxLen)
-	}
 	if env.Reward != 100 {
 		t.Fatalf("env.Reward should be `100`, but `%v`", env.Reward)
 	}
@@ -37,9 +34,6 @@ func TestLoadFromJSON(t *testing.T) {
 	}
 	if env.DepotPos.X != 0 || env.DepotPos.Y != 3 {
 		t.Fatalf("env.DepotPos should be `(0, 3)`, but `(%v, %v)`", env.DepotPos.X, env.DepotPos.Y)
-	}
-	if !env.Resolve {
-		t.Fatalf("env.Resolve should be `true`, but `%v`", env.Resolve)
 	}
 	if len(env.Algorithms) != 3 {
 		t.Fatalf("len(env.Algorithms) should be `3`, but `%v`", len(env.Algorithms))

@@ -2,13 +2,11 @@
   "num_agents": 3,
   "max_items": 1,
   "last_turn": 100,
-  "max_len": 1,
   "reward": 100,
   "DIY_bonus": 70,
   "map_data_path": "map_data.txt",
   "appear_prob": 0.8,
   "depot_pos": { "x": 0, "y": 3 },
-  "resolve": true,
   "algorithms": ["MCTS", "GREEDY", "GREEDY"],
 
   "mcts_discount_factor": 0.9,
