@@ -133,10 +133,16 @@ func MCTS(id int, startState *state.State, env *env.Env, rnd *rand.Rand, opt boo
 	if opt {
 		num := env.NumOfIter / 4
 		for i := 0; i < num; i++ {
-			dfs(0, 1, 1.0)
-		}
-		for i := 0; i < num*3; i++ {
 			dfs(0, 1, 0.0)
+		}
+		for i := 0; i < num; i++ {
+			dfs(0, 1, 1.0/3)
+		}
+		for i := 0; i < num; i++ {
+			dfs(0, 1, 2.0/3)
+		}
+		for i := 0; i < num; i++ {
+			dfs(0, 1, 1.0)
 		}
 	} else {
 		for i := 0; i < env.NumOfIter; i++ {
