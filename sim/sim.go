@@ -83,7 +83,9 @@ func (sim *Simulator) Next() bool {
 		go func(id int) {
 			switch sim.Env.Algorithms[id] {
 			case "MCTS":
-				actions[id] = mcts.MCTS(id, sim.State, sim.Env, sim.Rands[id])
+				actions[id] = mcts.MCTS(id, sim.State, sim.Env, sim.Rands[id], false)
+			case "MCTS_OPT":
+				actions[id] = mcts.MCTS(id, sim.State, sim.Env, sim.Rands[id], true)
 			default:
 				actions[id] = greedy.Greedy(sim.State, sim.Env, sim.Rands[id])[id]
 			}
