@@ -23,6 +23,7 @@ type Simulator struct {
 	TotalRewards []float64
 	LastRewards  []float64
 	LastAppear   *pos.Pos
+	PrevOpt      []float64
 	TotalItems   int
 	PickupCounts []int
 	ClearCounts  []int
@@ -41,6 +42,7 @@ func New(env *env.Env, seed int64) *Simulator {
 	clearCounts := make([]int, env.NumAgents)
 	simRand := rand.New(rand.NewSource(seed))
 	rands := make([]*rand.Rand, env.NumAgents)
+	prevOpt := make([]float64, env.NumAgents)
 	for i := range rands {
 		rands[i] = rand.New(rand.NewSource(simRand.Int63()))
 		agentPos[i] = env.AllPos[simRand.Intn(len(env.AllPos))]
@@ -52,7 +54,7 @@ func New(env *env.Env, seed int64) *Simulator {
 	}
 	success := make([]bool, env.NumAgents)
 	state := state.New(1, agentItems, agentPos, posItems, randomValues, success)
-	return &Simulator{Env: env, State: state, TotalRewards: totalRewards, PickupCounts: pickupCounts, ClearCounts: clearCounts, SimRand: simRand, Rands: rands, Seed: seed}
+	return &Simulator{Env: env, State: state, TotalRewards: totalRewards, PrevOpt: prevOpt, PickupCounts: pickupCounts, ClearCounts: clearCounts, SimRand: simRand, Rands: rands, Seed: seed}
 }
 
 //Do シミュレーションを実行し, 実行時間を返す
@@ -83,9 +85,11 @@ func (sim *Simulator) Next() bool {
 		go func(id int) {
 			switch sim.Env.Algorithms[id] {
 			case "MCTS":
-				actions[id] = mcts.MCTS(id, sim.State, sim.Env, sim.Rands[id], false)
+				actions[id], _ = mcts.MCTS(id, sim.State, sim.Env, sim.Rands[id], false, 0)
 			case "MCTS_OPT":
-				actions[id] = mcts.MCTS(id, sim.State, sim.Env, sim.Rands[id], true)
+				var nxtOpt float64
+				actions[id], nxtOpt = mcts.MCTS(id, sim.State, sim.Env, sim.Rands[id], true, sim.PrevOpt[id])
+				sim.PrevOpt[id] = nxtOpt
 			default:
 				actions[id] = greedy.Greedy(sim.State, sim.Env, sim.Rands[id])[id]
 			}

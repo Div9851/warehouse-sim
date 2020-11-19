@@ -11,7 +11,7 @@ type State struct {
 	AgentPos     []pos.Pos
 	PosItems     map[pos.Pos]int
 	RandomValues map[pos.Pos]float64 //PosItemsのキーの順序を固定する
-	Success      []bool              //PICKUPまたはCLEARを実行できた場合のみ真
+	Success      []bool              //行動を実行できた場合に真
 }
 
 //New 新しいStateへのポインタを返す

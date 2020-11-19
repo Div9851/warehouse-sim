@@ -37,8 +37,8 @@ func makeTuple(id int, score float64) tuple {
 	return tuple{ID: id, Score: score}
 }
 
-//MCTS モンテカルロ木探索で行動を決定する(optが真のときは楽観的な予測を行う)
-func MCTS(id int, startState *state.State, env *env.Env, rnd *rand.Rand, opt bool) int {
+//MCTS モンテカルロ木探索で行動を決定する（選択した行動と, 更新された楽観度を返す）
+func MCTS(id int, startState *state.State, env *env.Env, rnd *rand.Rand, opt bool, prevOpt float64) (int, float64) {
 	states := []*state.State{startState}
 	//ある状態に遷移したときに得られる報酬
 	stateRewards := make([]float64, 1)
@@ -130,19 +130,15 @@ func MCTS(id int, startState *state.State, env *env.Env, rnd *rand.Rand, opt boo
 		counts[stateID][chosen]++
 		return r
 	}
+	nxtOpt := prevOpt
 	if opt {
-		num := env.NumOfIter / 4
-		for i := 0; i < num; i++ {
-			dfs(0, 1, 0.0)
+		if startState.Success[id] {
+			nxtOpt = math.Min(nxtOpt+0.1, 1.0)
+		} else {
+			nxtOpt /= 2
 		}
-		for i := 0; i < num; i++ {
-			dfs(0, 1, 1.0/3)
-		}
-		for i := 0; i < num; i++ {
-			dfs(0, 1, 2.0/3)
-		}
-		for i := 0; i < num; i++ {
-			dfs(0, 1, 1.0)
+		for i := 0; i < env.NumOfIter; i++ {
+			dfs(0, 1, nxtOpt)
 		}
 	} else {
 		for i := 0; i < env.NumOfIter; i++ {
@@ -168,5 +164,5 @@ func MCTS(id int, startState *state.State, env *env.Env, rnd *rand.Rand, opt boo
 		ts = append(ts, makeTuple(act, score))
 	}
 	sort.Sort(sort.Reverse(ts))
-	return ts[0].ID
+	return ts[0].ID, nxtOpt
 }
