@@ -43,6 +43,9 @@ func New(env *env.Env, seed int64) *Simulator {
 	simRand := rand.New(rand.NewSource(seed))
 	rands := make([]*rand.Rand, env.NumAgents)
 	prevOpt := make([]float64, env.NumAgents)
+	for i := 0; i < env.NumAgents; i++ {
+		prevOpt[i] = simRand.Float64()
+	}
 	for i := range rands {
 		rands[i] = rand.New(rand.NewSource(simRand.Int63()))
 		agentPos[i] = env.AllPos[simRand.Intn(len(env.AllPos))]
