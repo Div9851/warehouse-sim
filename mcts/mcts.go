@@ -133,7 +133,7 @@ func MCTS(id int, startState *state.State, env *env.Env, rnd *rand.Rand, opt boo
 	nxtOpt := prevOpt
 	if opt {
 		if startState.Success[id] {
-			nxtOpt = math.Min(nxtOpt*1.5, 1.0)
+			nxtOpt = math.Min(nxtOpt+0.1, 1.0)
 		} else {
 			nxtOpt /= 2
 		}
