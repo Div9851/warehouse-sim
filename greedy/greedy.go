@@ -104,7 +104,6 @@ func Greedy(state *state.State, env *env.Env, rnd *rand.Rand, eps float64) []int
 			validMoves := env.ValidMoves[state.AgentPos[id]]
 			//一定確率でランダム行動
 			if rnd.Float64() < eps {
-				validMoves := env.ValidMoves[state.AgentPos[id]]
 				actions[id] = validMoves[rnd.Intn(len(validMoves))]
 			} else {
 				moves := []int{}

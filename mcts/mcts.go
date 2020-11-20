@@ -37,8 +37,8 @@ func makeTuple(id int, score float64) tuple {
 	return tuple{ID: id, Score: score}
 }
 
-//MCTS モンテカルロ木探索で行動を決定する（選択した行動と, 更新された楽観度を返す）
-func MCTS(id int, startState *state.State, env *env.Env, rnd *rand.Rand, opt bool, prevOpt float64) (int, float64) {
+//MCTS モンテカルロ木探索で行動を決定する
+func MCTS(id int, startState *state.State, env *env.Env, rnd *rand.Rand, opt float64) int {
 	states := []*state.State{startState}
 	//ある状態に遷移したときに得られる報酬
 	stateRewards := make([]float64, 1)
@@ -110,7 +110,7 @@ func MCTS(id int, startState *state.State, env *env.Env, rnd *rand.Rand, opt boo
 		if len(childs[stateID][chosen]) == env.MaxChilds {
 			to = childs[stateID][chosen][rnd.Intn(len(childs[stateID][chosen]))]
 		} else {
-			actions := greedy.Greedy(states[stateID], env, rnd, 0.1)
+			actions := greedy.Greedy(states[stateID], env, rnd, 0.0)
 			actions[id] = chosen
 			nxt, _, _, rewards := state.NextStateOpt(states[stateID], actions, env, rnd, id, opt)
 			to = len(states)
@@ -130,20 +130,8 @@ func MCTS(id int, startState *state.State, env *env.Env, rnd *rand.Rand, opt boo
 		counts[stateID][chosen]++
 		return r
 	}
-	nxtOpt := prevOpt
-	if opt {
-		if startState.Success[id] {
-			nxtOpt = math.Min(nxtOpt+0.1, 1.0)
-		} else {
-			nxtOpt /= 2
-		}
-		for i := 0; i < env.NumOfIter; i++ {
-			dfs(0, 1, nxtOpt)
-		}
-	} else {
-		for i := 0; i < env.NumOfIter; i++ {
-			dfs(0, 1, 0)
-		}
+	for i := 0; i < env.NumOfIter; i++ {
+		dfs(0, 1, opt)
 	}
 	ts := make(tuples, 0)
 	validActions := make([]int, len(env.ValidMoves[states[0].AgentPos[id]]))
@@ -164,5 +152,5 @@ func MCTS(id int, startState *state.State, env *env.Env, rnd *rand.Rand, opt boo
 		ts = append(ts, makeTuple(act, score))
 	}
 	sort.Sort(sort.Reverse(ts))
-	return ts[0].ID, nxtOpt
+	return ts[0].ID
 }
