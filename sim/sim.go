@@ -96,7 +96,7 @@ func (sim *Simulator) Next() bool {
 				}
 				sim.Opt[id] = nxtOpt
 				//optが1のとき, 一定確率でGreedyに行動
-				if sim.Opt[id] == 1 && sim.Rands[id].Float64() < 0.1 {
+				if sim.Opt[id] == 1 && sim.Rands[id].Float64() < 0.2 {
 					actions[id] = greedy.Greedy(sim.State, sim.Env, sim.Rands[id], 0)[id]
 				} else {
 					actions[id] = mcts.MCTS(id, sim.State, sim.Env, sim.Rands[id], sim.Opt[id])
