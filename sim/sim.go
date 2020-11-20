@@ -91,7 +91,7 @@ func (sim *Simulator) Next() bool {
 				actions[id], nxtOpt = mcts.MCTS(id, sim.State, sim.Env, sim.Rands[id], true, sim.PrevOpt[id])
 				sim.PrevOpt[id] = nxtOpt
 			default:
-				actions[id] = greedy.Greedy(sim.State, sim.Env, sim.Rands[id])[id]
+				actions[id] = greedy.Greedy(sim.State, sim.Env, sim.Rands[id], 0)[id]
 			}
 			wg.Done()
 		}(i)

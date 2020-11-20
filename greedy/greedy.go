@@ -53,7 +53,7 @@ func makeTuple(id int, pos pos.Pos, value float64, randomVal float64) tuple {
 }
 
 //Greedy 貪欲法で行動を決定する
-func Greedy(state *state.State, env *env.Env, rnd *rand.Rand) []int {
+func Greedy(state *state.State, env *env.Env, rnd *rand.Rand, eps float64) []int {
 	dest := make(map[int]pos.Pos)
 	value := make(map[int]float64)
 	reserved := make(map[pos.Pos]int)
@@ -102,15 +102,21 @@ func Greedy(state *state.State, env *env.Env, rnd *rand.Rand) []int {
 			}
 		case state.AgentPos[id] != dest[id] && value[id] > 0: //目的地にいなくて, 価値が非0なら
 			validMoves := env.ValidMoves[state.AgentPos[id]]
-			moves := []int{}
-			for _, move := range validMoves {
-				nxt := pos.NextPos(state.AgentPos[id], move, env.MapData)
-				//目的地に近づくなら
-				if env.MinDist[state.AgentPos[id]][dest[id]] > env.MinDist[nxt][dest[id]] {
-					moves = append(moves, move)
+			//一定確率でランダム行動
+			if rnd.Float64() < eps {
+				validMoves := env.ValidMoves[state.AgentPos[id]]
+				actions[id] = validMoves[rnd.Intn(len(validMoves))]
+			} else {
+				moves := []int{}
+				for _, move := range validMoves {
+					nxt := pos.NextPos(state.AgentPos[id], move, env.MapData)
+					//目的地に近づくなら
+					if env.MinDist[state.AgentPos[id]][dest[id]] > env.MinDist[nxt][dest[id]] {
+						moves = append(moves, move)
+					}
 				}
+				actions[id] = moves[rnd.Intn(len(moves))]
 			}
-			actions[id] = moves[rnd.Intn(len(moves))]
 		default: //目的地の価値が0ならランダムに行動
 			validMoves := env.ValidMoves[state.AgentPos[id]]
 			actions[id] = validMoves[rnd.Intn(len(validMoves))]
