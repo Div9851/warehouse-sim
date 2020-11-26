@@ -44,6 +44,9 @@ func New(env *env.Env, seed int64) *Simulator {
 	simRand := rand.New(rand.NewSource(seed))
 	rands := make([]*rand.Rand, env.NumAgents)
 	opt := make([]float64, env.NumAgents)
+	for i := 0; i < env.NumAgents; i++ {
+		opt[i] = 0.5
+	}
 	for i := range rands {
 		rands[i] = rand.New(rand.NewSource(simRand.Int63()))
 		agentPos[i] = env.AllPos[simRand.Intn(len(env.AllPos))]
@@ -92,11 +95,11 @@ func (sim *Simulator) Next() bool {
 				if sim.State.Success[id] {
 					nxtOpt = math.Min(nxtOpt+0.1, 1.0)
 				} else {
-					nxtOpt /= 2
+					nxtOpt *= sim.Rands[id].Float64()
 				}
 				sim.Opt[id] = nxtOpt
 				//optが1のとき, 一定確率でGreedyに行動
-				if sim.Opt[id] == 1 && sim.Rands[id].Float64() < 0.2 {
+				if sim.Opt[id] == 1 && sim.Rands[id].Float64() < 0.1 {
 					actions[id] = greedy.Greedy(sim.State, sim.Env, sim.Rands[id], 0)[id]
 				} else {
 					actions[id] = mcts.MCTS(id, sim.State, sim.Env, sim.Rands[id], sim.Opt[id])
