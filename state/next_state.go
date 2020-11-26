@@ -10,13 +10,8 @@ import (
 //NextState 現在の状態, 各エージェントの行動, 環境設定, 乱数生成器を受け取り
 //次の状態, エージェントが取った行動, アイテムが出現した場所, 各エージェントが得た報酬を返す
 func NextState(state *State, actions []int, env *env.Env, rnd *rand.Rand) (*State, []int, *pos.Pos, []float64) {
-	return NextStateOpt(state, actions, env, rnd, -1, 0.0)
-}
-
-//NextStateOpt あるエージェントを優先するようなNextState
-func NextStateOpt(state *State, actions []int, env *env.Env, rnd *rand.Rand, favoredID int, opt float64) (*State, []int, *pos.Pos, []float64) {
 	agentItems, posItems, successItems, rewards := nextItems(state, actions, env)
-	nxtPos, successPos := nextPosOpt(state, actions, env, rnd, favoredID, opt)
+	nxtPos, successPos := nextPos(state, actions, env, rnd)
 	success := make([]bool, env.NumAgents)
 	for i := 0; i < env.NumAgents; i++ {
 		success[i] = successItems[i] || successPos[i]

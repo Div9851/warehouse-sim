@@ -10,11 +10,6 @@ import (
 //nextPos 現在の状態, 各エージェントの行動, 環境設定を受け取って
 //次の状態のAgentPos, Successを返す
 func nextPos(state *State, actions []int, env *env.Env, rnd *rand.Rand) ([]pos.Pos, []bool) {
-	return nextPosOpt(state, actions, env, rnd, -1, 0.0)
-}
-
-//nextPosOpt あるエージェントを優先するようなnextPos
-func nextPosOpt(state *State, actions []int, env *env.Env, rnd *rand.Rand, favoredID int, opt float64) ([]pos.Pos, []bool) {
 	nxtPos := make([]pos.Pos, env.NumAgents)
 	copy(nxtPos, state.AgentPos)
 	//現在ある座標にいるエージェントのID
@@ -28,11 +23,11 @@ func nextPosOpt(state *State, actions []int, env *env.Env, rnd *rand.Rand, favor
 			nextID[nxtPos[id]] = append(nextID[nxtPos[id]], id)
 		}
 	}
-	success := doDFS(state, env, rnd, nxtPos, currentID, nextID, favoredID, opt)
+	success := doDFS(state, env, rnd, nxtPos, currentID, nextID)
 	return nxtPos, success
 }
 
-func doDFS(state *State, env *env.Env, rnd *rand.Rand, nxtPos []pos.Pos, currentID map[pos.Pos]int, nextID map[pos.Pos][]int, favoredID int, opt float64) []bool {
+func doDFS(state *State, env *env.Env, rnd *rand.Rand, nxtPos []pos.Pos, currentID map[pos.Pos]int, nextID map[pos.Pos][]int) []bool {
 	const (
 		INIT int = iota
 		PENDING
@@ -75,16 +70,11 @@ func doDFS(state *State, env *env.Env, rnd *rand.Rand, nxtPos []pos.Pos, current
 			success[id] = true
 			return
 		}
-		//競合しているなら全員STAY（ただし優先されるエージェントがいる時は例外）
+		//競合しているなら全員STAY
 		for _, nxtID := range nextID[nxtPos[id]] {
-			if nxtID == favoredID && rnd.Float64() < opt {
-				status[nxtID] = DECIDED
-				success[nxtID] = true
-			} else {
-				status[nxtID] = DECIDED
-				success[nxtID] = false
-				nxtPos[nxtID] = state.AgentPos[nxtID]
-			}
+			status[nxtID] = DECIDED
+			success[nxtID] = false
+			nxtPos[nxtID] = state.AgentPos[nxtID]
 		}
 	}
 	for i := 0; i < env.NumAgents; i++ {
