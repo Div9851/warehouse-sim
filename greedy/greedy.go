@@ -53,7 +53,7 @@ func makeTuple(id int, pos pos.Pos, value float64, randomVal float64) tuple {
 }
 
 //Greedy 貪欲法で行動を決定する
-func Greedy(state *state.State, env *env.Env, rnd *rand.Rand, plannerID int, plannerAction int) []int {
+func Greedy(state *state.State, env *env.Env, rnd *rand.Rand, check bool) []int {
 	reserved := make(map[pos.Pos]int)
 	blocked := make(map[pos.Pos]bool)
 	agentID := make(map[pos.Pos]int)
@@ -61,17 +61,7 @@ func Greedy(state *state.State, env *env.Env, rnd *rand.Rand, plannerID int, pla
 	actions := make([]int, env.NumAgents)
 	dest := make([]pos.Pos, env.NumAgents)
 	ts := make(tuples, 0)
-	if plannerID != -1 {
-		decided[plannerID] = true
-		actions[plannerID] = plannerAction
-		nxt := pos.NextPos(state.AgentPos[plannerID], actions[plannerID], env.MapData)
-		dest[plannerID] = nxt
-		blocked[nxt] = true
-	}
 	for id := 0; id < env.NumAgents; id++ {
-		if id == plannerID {
-			continue
-		}
 		agentID[state.AgentPos[id]] = id
 		for pos := range state.PosItems {
 			ts = append(ts, makeTuple(id, pos, eval(id, pos, state, env), state.RandomValues[pos]))
@@ -108,14 +98,16 @@ func Greedy(state *state.State, env *env.Env, rnd *rand.Rand, plannerID int, pla
 		validMoves := env.ValidMoves[state.AgentPos[t.ID]]
 		for _, move := range validMoves {
 			nxt := pos.NextPos(state.AgentPos[t.ID], move, env.MapData)
-			//すでにブロックされているならダメ
-			if blocked[nxt] {
-				continue
-			}
-			//すれ違うような動き方はダメ
-			otherID, exist := agentID[nxt]
-			if exist && decided[otherID] && dest[otherID] == state.AgentPos[t.ID] {
-				continue
+			if check {
+				//すでにブロックされているならダメ
+				if blocked[nxt] {
+					continue
+				}
+				//すれ違うような動き方はダメ
+				otherID, exist := agentID[nxt]
+				if exist && decided[otherID] && dest[otherID] == state.AgentPos[t.ID] {
+					continue
+				}
 			}
 			//目的地に近づくなら
 			if env.MinDist[state.AgentPos[t.ID]][t.Pos] > env.MinDist[nxt][t.Pos] {
@@ -142,14 +134,16 @@ func Greedy(state *state.State, env *env.Env, rnd *rand.Rand, plannerID int, pla
 		validMoves := env.ValidMoves[state.AgentPos[id]]
 		for _, move := range validMoves {
 			nxt := pos.NextPos(state.AgentPos[id], move, env.MapData)
-			//すでにブロックされているならダメ
-			if blocked[nxt] {
-				continue
-			}
-			//すれ違うような動き方はダメ
-			otherID, exist := agentID[nxt]
-			if exist && decided[otherID] && dest[otherID] == state.AgentPos[id] {
-				continue
+			if check {
+				//すでにブロックされているならダメ
+				if blocked[nxt] {
+					continue
+				}
+				//すれ違うような動き方はダメ
+				otherID, exist := agentID[nxt]
+				if exist && decided[otherID] && dest[otherID] == state.AgentPos[id] {
+					continue
+				}
 			}
 			moves = append(moves, move)
 		}
