@@ -110,7 +110,7 @@ func MCTS(id int, startState *state.State, env *env.Env, rnd *rand.Rand, opt flo
 		if len(childs[stateID][chosen]) == env.MaxChilds {
 			to = childs[stateID][chosen][rnd.Intn(len(childs[stateID][chosen]))]
 		} else {
-			actions := greedy.Greedy(states[stateID], env, rnd, false)
+			actions := greedy.Greedy(states[stateID], env, rnd, true)
 			actions[id] = chosen
 			nxt, _, _, rewards := state.NextStateOpt(states[stateID], actions, env, rnd, id, opt)
 			to = len(states)
