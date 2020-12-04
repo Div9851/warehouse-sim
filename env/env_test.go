@@ -47,6 +47,9 @@ func TestLoadFromJSON(t *testing.T) {
 	if env.Algorithms[2] != "GREEDY" {
 		t.Fatalf("env.Algorithms[2] should be `GREEDY`, but `%v`", env.Algorithms[2])
 	}
+	if !env.GreedyCA {
+		t.Fatalf("env.GreedyCA should be true, but false")
+	}
 	if env.DiscountFactor != 0.9 {
 		t.Fatalf("env.DiscountFactor should be `0.9`, but `%v`", env.DiscountFactor)
 	}

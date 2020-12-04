@@ -16,6 +16,8 @@ func main() {
 	concurrent := flag.Int("concurrent", 1, "並行して実行するシミュレーションの数")
 	total := flag.Int("total", 1, "実行するシミュレーションの数")
 	verbose := flag.Bool("verbose", false, "シミュレーションの詳細を出力するかどうか")
+	seed := flag.Int64("seed", -1, "乱数のシード値")
+
 	flag.Parse()
 	env, err := env.Load(*envPath)
 	if err != nil {
@@ -25,6 +27,10 @@ func main() {
 	var totalItems int
 	var totalPickupCounts int
 	var totalClearCounts int
+
+	if *seed != -1 {
+		rand.Seed(*seed)
+	}
 
 	for done := 0; done < *total; done += *concurrent {
 		startTime := time.Now()
@@ -37,8 +43,7 @@ func main() {
 		for i := 0; i < now; i++ {
 			wg.Add(1)
 			go func(idx int) {
-				seed := rand.Int63()
-				sim := sim.New(env, seed)
+				sim := sim.New(env, rand.Int63())
 				sim.Do(*verbose)
 				results[idx] = sim.GetResult()
 				wg.Done()

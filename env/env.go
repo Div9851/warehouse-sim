@@ -22,7 +22,8 @@ type Env struct {
 	MapDataPath string   `json:"map_data_path"`
 	AppearProb  float64  `json:"appear_prob"`
 	DepotPos    pos.Pos  `json:"depot_pos"`
-	Algorithms  []string `json:"algorithms"` //GREEDY, MCTS
+	Algorithms  []string `json:"algorithms"` //GREEDY, MCTS, MCTS_OPT
+	GreedyCA    bool     `json:"greedy_ca"`
 
 	DiscountFactor float64 `json:"mcts_discount_factor"`
 	ExpandTheresh  int     `json:"mcts_expand_thresh"` //ノードを展開する閾値

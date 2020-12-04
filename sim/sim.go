@@ -133,8 +133,8 @@ func (sim *Simulator) Next() bool {
 	return true
 }
 
-//DumpState 現在の状態を表す文字列を返す
-func (sim *Simulator) DumpState() string {
+//DumpMap マップデータを返す
+func (sim *Simulator) DumpMap() []string {
 	mapData := make([]string, len(sim.Env.MapData))
 	copy(mapData, sim.Env.MapData)
 	pos := sim.Env.DepotPos
@@ -145,6 +145,12 @@ func (sim *Simulator) DumpState() string {
 	for i, pos := range sim.State.AgentPos {
 		mapData[pos.Y] = mapData[pos.Y][:pos.X] + fmt.Sprint(i) + mapData[pos.Y][pos.X+1:]
 	}
+	return mapData
+}
+
+//DumpState 現在の状態を表す文字列を返す
+func (sim *Simulator) DumpState() string {
+	mapData := sim.DumpMap()
 	var b strings.Builder
 	fmt.Fprintf(&b, "[TURN %v]\n", sim.State.Turn)
 	for _, row := range mapData {

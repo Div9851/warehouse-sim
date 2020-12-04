@@ -68,7 +68,7 @@ func MCTS(id int, startState *state.State, env *env.Env, rnd *rand.Rand, opt flo
 			//roll out
 			now := states[stateID]
 			for now.Turn < env.LastTurn && depth < env.MaxDepth {
-				actions := greedy.Greedy(now, env, rnd, true)
+				actions := greedy.Greedy(now, env, rnd, env.GreedyCA)
 				nxt, _, _, rewards := state.NextState(now, actions, env, rnd)
 				now = nxt
 				r += k * rewards[id]
@@ -110,7 +110,7 @@ func MCTS(id int, startState *state.State, env *env.Env, rnd *rand.Rand, opt flo
 		if len(childs[stateID][chosen]) == env.MaxChilds {
 			to = childs[stateID][chosen][rnd.Intn(len(childs[stateID][chosen]))]
 		} else {
-			actions := greedy.Greedy(states[stateID], env, rnd, true)
+			actions := greedy.Greedy(states[stateID], env, rnd, env.GreedyCA)
 			actions[id] = chosen
 			nxt, _, _, rewards := state.NextStateOpt(states[stateID], actions, env, rnd, id, opt)
 			to = len(states)
