@@ -6,7 +6,7 @@
   "DIY_bonus": 70,
   "map_data_path": "map_data.txt",
   "appear_prob": 0.3,
-  "depot_pos": { "x": 0, "y": 3 },
+  "depot_pos": { "x": 21, "y": 8 },
   "algorithms": ["MCTS", "MCTS", "MCTS"],
   "greedy_ca": true,
 
