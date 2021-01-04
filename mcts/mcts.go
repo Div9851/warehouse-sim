@@ -38,7 +38,7 @@ func makeTuple(id int, score float64) tuple {
 }
 
 //MCTS モンテカルロ木探索で行動を決定する
-func MCTS(id int, startState *state.State, env *env.Env, rnd *rand.Rand, opt float64) int {
+func MCTS(id int, startState *state.State, env *env.Env, rnd *rand.Rand, coef float64) int {
 	states := []*state.State{startState}
 	//ある状態に遷移したときに得られる報酬
 	stateRewards := make([]float64, 1)
@@ -56,8 +56,8 @@ func MCTS(id int, startState *state.State, env *env.Env, rnd *rand.Rand, opt flo
 	//ある状態でロールアウトを行った回数
 	simCount := []int{env.ExpandTheresh} //始点はすぐ展開
 
-	var dfs func(int, int, float64) float64
-	dfs = func(stateID int, depth int, opt float64) float64 {
+	var dfs func(int, int) float64
+	dfs = func(stateID int, depth int) float64 {
 		if states[stateID].Turn >= env.LastTurn || depth >= env.MaxDepth {
 			return 0
 		}
@@ -112,7 +112,7 @@ func MCTS(id int, startState *state.State, env *env.Env, rnd *rand.Rand, opt flo
 		} else {
 			actions := greedy.Greedy(states[stateID], env, rnd, env.GreedyCA)
 			actions[id] = chosen
-			nxt, _, _, rewards := state.NextStateOpt(states[stateID], actions, env, rnd, id, opt)
+			nxt, _, _, rewards := state.NextState(states[stateID], actions, env, rnd)
 			to = len(states)
 			childs[stateID][chosen] = append(childs[stateID][chosen], to)
 			states = append(states, nxt)
@@ -124,14 +124,14 @@ func MCTS(id int, startState *state.State, env *env.Env, rnd *rand.Rand, opt flo
 			simCount = append(simCount, 0)
 		}
 		r += stateRewards[to]
-		r += env.DiscountFactor * dfs(to, depth+1, opt)
+		r += env.DiscountFactor * dfs(to, depth+1)
 		sumReward[stateID][chosen] += r
 		totalCount[stateID]++
 		counts[stateID][chosen]++
 		return r
 	}
 	for i := 0; i < env.NumOfIter; i++ {
-		dfs(0, 1, opt)
+		dfs(0, 1)
 	}
 	ts := make(tuples, 0)
 	validActions := make([]int, len(env.ValidMoves[states[0].AgentPos[id]]))
@@ -142,12 +142,16 @@ func MCTS(id int, startState *state.State, env *env.Env, rnd *rand.Rand, opt flo
 	if states[0].AgentPos[id] == env.DepotPos && states[0].AgentItems[id] > 0 {
 		validActions = append(validActions, action.CLEAR)
 	}
+	greedyAct := greedy.Greedy(startState, env, rnd, false)[id]
 	for _, act := range validActions {
 		var score float64
 		if counts[0][act] == 0 {
 			score = math.Inf(-1)
 		} else {
 			score = sumReward[0][act] / float64(counts[0][act])
+			if act == greedyAct {
+				score *= 1 + coef
+			}
 		}
 		ts = append(ts, makeTuple(act, score))
 	}
