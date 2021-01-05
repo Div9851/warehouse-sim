@@ -2,6 +2,7 @@ package sim
 
 import (
 	"fmt"
+	"math"
 	"math/rand"
 	"strings"
 	"sync"
@@ -24,7 +25,6 @@ type Simulator struct {
 	LastRewards  []float64
 	LastAppear   *pos.Pos
 	Opt          []float64
-	OptAdd       []float64
 	TotalItems   int
 	PickupCounts []int
 	ClearCounts  []int
@@ -44,7 +44,6 @@ func New(env *env.Env, seed int64) *Simulator {
 	simRand := rand.New(rand.NewSource(seed))
 	rands := make([]*rand.Rand, env.NumAgents)
 	opt := make([]float64, env.NumAgents)
-	optAdd := make([]float64, env.NumAgents)
 	for i := 0; i < env.NumAgents; i++ {
 		opt[i] = 0.5
 	}
@@ -59,7 +58,7 @@ func New(env *env.Env, seed int64) *Simulator {
 	}
 	success := make([]bool, env.NumAgents)
 	state := state.New(1, agentItems, agentPos, posItems, randomValues, success)
-	return &Simulator{Env: env, State: state, TotalRewards: totalRewards, Opt: opt, OptAdd: optAdd, PickupCounts: pickupCounts, ClearCounts: clearCounts, SimRand: simRand, Rands: rands, Seed: seed}
+	return &Simulator{Env: env, State: state, TotalRewards: totalRewards, Opt: opt, PickupCounts: pickupCounts, ClearCounts: clearCounts, SimRand: simRand, Rands: rands, Seed: seed}
 }
 
 //Do シミュレーションを実行し, 実行時間を返す
@@ -92,28 +91,17 @@ func (sim *Simulator) Next() bool {
 			case "MCTS":
 				actions[id] = mcts.MCTS(id, sim.State, sim.Env, sim.Rands[id], 0)
 			case "MCTS_OPT":
-				sim.OptAdd[id] *= 0.5
+				nxtOpt := sim.Opt[id]
 				if sim.State.Success[id] {
-					sim.OptAdd[id] += 0.2
+					nxtOpt = math.Min(nxtOpt+0.1, 0.5)
 				} else {
-					sim.OptAdd[id] -= 0.3
+					nxtOpt = math.Max(nxtOpt-0.2, 0)
 				}
-				if sim.OptAdd[id] > 0.5 {
-					sim.OptAdd[id] = 0.5
-				}
-				if sim.OptAdd[id] < -0.5 {
-					sim.OptAdd[id] = -0.5
-				}
-				sim.Opt[id] += sim.OptAdd[id]
-				if sim.Opt[id] > 1.0 {
-					sim.Opt[id] = 1
-				}
-				if sim.Opt[id] < 0 {
-					sim.Opt[id] = 0
-				}
+				sim.Opt[id] = nxtOpt
 				actions[id] = mcts.MCTS(id, sim.State, sim.Env, sim.Rands[id], sim.Opt[id])
 			default:
-				actions[id] = greedy.Greedy(sim.State, sim.Env, sim.Rands[id], sim.Env.GreedyCA)[id]
+				ret, _ := greedy.Greedy(sim.State, sim.Env, sim.Rands[id], sim.Env.GreedyCA)
+				actions[id] = ret[id]
 			}
 			wg.Done()
 		}(i)

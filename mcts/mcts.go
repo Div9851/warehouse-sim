@@ -68,7 +68,7 @@ func MCTS(id int, startState *state.State, env *env.Env, rnd *rand.Rand, coef fl
 			//roll out
 			now := states[stateID]
 			for now.Turn < env.LastTurn && depth < env.MaxDepth {
-				actions := greedy.Greedy(now, env, rnd, env.GreedyCA)
+				actions, _ := greedy.Greedy(now, env, rnd, env.GreedyCA)
 				nxt, _, _, rewards := state.NextState(now, actions, env, rnd)
 				now = nxt
 				r += k * rewards[id]
@@ -110,7 +110,7 @@ func MCTS(id int, startState *state.State, env *env.Env, rnd *rand.Rand, coef fl
 		if len(childs[stateID][chosen]) == env.MaxChilds {
 			to = childs[stateID][chosen][rnd.Intn(len(childs[stateID][chosen]))]
 		} else {
-			actions := greedy.Greedy(states[stateID], env, rnd, env.GreedyCA)
+			actions, _ := greedy.Greedy(states[stateID], env, rnd, env.GreedyCA)
 			actions[id] = chosen
 			nxt, _, _, rewards := state.NextState(states[stateID], actions, env, rnd)
 			to = len(states)
@@ -142,14 +142,14 @@ func MCTS(id int, startState *state.State, env *env.Env, rnd *rand.Rand, coef fl
 	if states[0].AgentPos[id] == env.DepotPos && states[0].AgentItems[id] > 0 {
 		validActions = append(validActions, action.CLEAR)
 	}
-	greedyAct := greedy.Greedy(startState, env, rnd, false)[id]
+	greedyActions, values := greedy.Greedy(startState, env, rnd, false)
 	for _, act := range validActions {
 		var score float64
 		if counts[0][act] == 0 {
 			score = math.Inf(-1)
 		} else {
 			score = sumReward[0][act] / float64(counts[0][act])
-			if act == greedyAct {
+			if act == greedyActions[id] && values[id] > 0 {
 				score *= 1 + coef
 			}
 		}

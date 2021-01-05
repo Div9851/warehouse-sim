@@ -53,12 +53,13 @@ func makeTuple(id int, pos pos.Pos, value float64, randomVal float64) tuple {
 }
 
 //Greedy 貪欲法で行動を決定する
-func Greedy(state *state.State, env *env.Env, rnd *rand.Rand, check bool) []int {
+func Greedy(state *state.State, env *env.Env, rnd *rand.Rand, check bool) ([]int, []float64) {
 	reserved := make(map[pos.Pos]int)
 	blocked := make(map[pos.Pos]bool)
 	agentID := make(map[pos.Pos]int)
 	decided := make([]bool, env.NumAgents)
 	actions := make([]int, env.NumAgents)
+	values := make([]float64, env.NumAgents)
 	dest := make([]pos.Pos, env.NumAgents)
 	ts := make(tuples, 0)
 	for id := 0; id < env.NumAgents; id++ {
@@ -120,6 +121,7 @@ func Greedy(state *state.State, env *env.Env, rnd *rand.Rand, check bool) []int 
 		}
 		decided[t.ID] = true
 		actions[t.ID] = moves[rnd.Intn(len(moves))]
+		values[t.ID] = t.Value
 		nxt := pos.NextPos(state.AgentPos[t.ID], actions[t.ID], env.MapData)
 		dest[t.ID] = nxt
 		blocked[nxt] = true
@@ -157,5 +159,5 @@ func Greedy(state *state.State, env *env.Env, rnd *rand.Rand, check bool) []int 
 		dest[id] = nxt
 		blocked[nxt] = true
 	}
-	return actions
+	return actions, values
 }
