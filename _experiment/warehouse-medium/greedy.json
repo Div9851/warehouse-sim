@@ -7,6 +7,5 @@
   "map_data_path": "map_data.txt",
   "appear_prob": 0.3,
   "depot_pos": { "x": 0, "y": 3 },
-  "algorithms": ["GREEDY", "GREEDY", "GREEDY"],
-  "greedy_ca": true
+  "algorithms": ["GREEDY", "GREEDY", "GREEDY"]
 }
