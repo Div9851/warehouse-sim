@@ -1,0 +1,11 @@
+{
+  "num_agents": 5,
+  "max_items": 1,
+  "last_turn": 100,
+  "reward": 100,
+  "DIY_bonus": 70,
+  "map_data_path": "map_data.txt",
+  "appear_prob": 0.3,
+  "depot_pos": { "x": 0, "y": 3 },
+  "algorithms": ["GREEDY", "GREEDY", "GREEDY", "GREEDY", "GREEDY"]
+}
